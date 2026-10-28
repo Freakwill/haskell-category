@@ -1,0 +1,38 @@
+name: Haskell code
+
+on:
+  push:
+    paths:
+      - "code/**"
+      - ".github/workflows/code.yml"
+  pull_request:
+    paths:
+      - "code/**"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: haskell-actions/setup@v2
+        id: setup
+        with:
+          ghc-version: "9.14"
+          cabal-version: "3.18"
+      - name: Cache cabal store
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cabal/store
+            ~/.cabal/packages
+            dist-newstyle
+          key: ${{ runner.os }}-ghc-${{ steps.setup.outputs.ghc-version }}-${{ hashFiles('code/**/*.cabal', 'code/cabal.project') }}
+          restore-keys: |
+            ${{ runner.os }}-ghc-${{ steps.setup.outputs.ghc-version }}-
+      - name: Build
+        working-directory: code
+        run: cabal build all
+      - name: Test
+        working-directory: code
+        run: cabal test all --test-show-details=direct

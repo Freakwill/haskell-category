@@ -1,0 +1,15 @@
+/* 中文正文的可读性调整；代码块与正文分开字体 */
+:root {
+  --code-font: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+}
+.content {
+  font-family: "PingFang SC", "Noto Sans CJK SC", "Source Han Sans SC", system-ui, sans-serif;
+  line-height: 1.85;
+  font-size: 1.6rem;
+}
+.content p { text-indent: 2em; }
+.content li p, .content blockquote p, .content td p { text-indent: 0; }
+.content h1, .content h2, .content h3 { text-indent: 0; }
+code { font-family: var(--code-font); }
+pre code { line-height: 1.55; }
+.content table { font-size: 1.5rem; }

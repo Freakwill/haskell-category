@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+Icon?
+
+# mdBook 构建输出
+site/
+
+# Haskell / cabal 构建产物
+dist-newstyle/
+dist/
+*.hi
+*.o
+*.dyn_hi
+*.dyn_o
+.ghc.environment.*
+cabal.project.local
+cabal.project.freeze
+
+# 编辑器
+.vscode/
+.idea/
+*.swp

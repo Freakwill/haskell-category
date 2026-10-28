@@ -1,0 +1,32 @@
+cabal-version:      2.4
+name:               haskell-book
+version:            0.1.0.0
+synopsis:           Code harness for the Haskell book draft
+description:        Scaffold P0: builds the sample modules extracted from
+                    Haskell.md and runs their regression specs.
+license:            BSD-3-Clause
+author:             will
+maintainer:         will
+build-type:         Simple
+
+library
+    hs-source-dirs:   src
+    exposed-modules:  Ch01.Basics
+    build-depends:    base        >=4.16 && <5
+                    , containers  >=0.6
+                    , text        >=2.0
+                    , mtl         >=2.2
+    default-language: GHC2021
+    ghc-options:      -Wall
+
+test-suite spec
+    type:             exitcode-stdio-1.0
+    hs-source-dirs:   test
+    main-is:          Spec.hs
+    build-depends:    base
+                    , containers
+                    , text
+                    , haskell-book
+                    , hspec       >=2.10
+    default-language: GHC2021
+    ghc-options:      -Wall

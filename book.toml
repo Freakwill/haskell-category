@@ -1,0 +1,20 @@
+[book]
+title = "边学 Haskell 边学范畴论"
+authors = ["宋丛威"]
+language = "zh-CN"
+description = "从可运行的代码倒推范畴论：函子、应用函子、单子，以及它们的工程落地。"
+src = "src"
+
+[build]
+build-dir = "site"
+create-missing = false
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+mathjax-support = true
+site-url = "/haskell-category/"
+git-repository-url = "https://github.com/Freakwill/haskell-category"
+edit-url-template = "https://github.com/Freakwill/haskell-category/edit/main/src/{path}"
+no-section-label = true
+additional-css = ["theme/book.css"]
