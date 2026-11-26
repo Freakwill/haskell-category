@@ -1,4 +1,4 @@
-# 第 8 章 应用函子：`<*>`、lax monoidal 与实例巡礼
+# 第 8 章 应用函子：`<*>`、lax monoidal 与实例
 
 > 状态：试写稿（第一稿，待审） ｜ 目标 2.8 万字 ｜ 代码：`code/src/Ch08/Applicative.hs`
 

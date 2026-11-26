@@ -22,7 +22,7 @@ main = print (double 21)
 \end{lstlisting}
 
 \passthrough{\lstinline!double :: Int -> Int!} 是签名，读作“double 把 \passthrough{\lstinline!Int!} 映射到 \passthrough{\lstinline!Int!}”；\passthrough{\lstinline!main :: IO ()!} 是程序
-入口，\passthrough{\lstinline!IO!} 留到第 11 章，此处只需知道它是“执行后返回 \passthrough{\lstinline!()!} 的动作”。运行：
+入口，此处只需知道它是“执行后返回 \passthrough{\lstinline!()!} 的动作”，\passthrough{\lstinline!IO!} 的类型与组合规则在工程各章随用随讲。运行：
 
 \begin{lstlisting}
 $ runghc code/src/Ch01/Hello.hs
@@ -559,7 +559,8 @@ ADT、类型类与纯函数则是整个家族共享的面。
 \end{itemize}
 
 这些差别不是交互环境的设计选择，而是语言核心（纯函数、无赋值）在 REPL 上的体现。
-REPL 循环本身的实现留到第 11 章。
+本书对 REPL 的介绍到此为止：日常使用以脚本运行为主，工程各章的代码都以可编译文件的形式
+给出。
 
 \section{惰性求值与副作用}\label{ux60f0ux6027ux6c42ux503cux4e0eux526fux4f5cux7528}
 
@@ -618,7 +619,7 @@ Haskell 处理副作用的方式不是禁止，而是\textbf{把副作用写进�
 \end{enumerate}
 
 第 2 章起逐条展开这三点。语法细节、类型类的完整规则、范畴论与真实项目的组织方式分别
-留到第 2--4、4、5、12 章；REPL 循环的实现留到第 11 章。
+留到第 2--4、4、5、11 章。
 
 \section*{参考文献}
 \addcontentsline{toc}{section}{参考文献}\label{ux53c2ux8003ux6587ux732e}
