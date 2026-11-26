@@ -2,7 +2,7 @@
 
 本章先用一个最小脚本熟悉 Haskell 的基本语法与 GHCi（1.1 节）；再用同一个求值器演示三种
 写法：Python 的 \passthrough{\lstinline!isinstance!} 派发、抽象基类、Haskell 的 \passthrough{\lstinline!data!} 加模式匹配（1.2 节），并在
-1.3 节比较三种实现的取舍，引出“表达问题”。1.4 节把比较延伸到状态处理与 C、Go、Scala；1.5 节看函数式语言内部的差异、Haskell 的近亲与各家 REPL；1.6 节讲惰性求值与副作用。读完本章应能区分：Haskell 与 Python 的差别主要不在语法，而在类型系统的检查能力与默认
+1.3 节比较三种实现的取舍，引出“表达问题”。1.4 节把比较延伸到状态处理、C/Go/Scala 与各家 REPL；1.5 节看函数式语言内部的差异与 Haskell 的近亲；1.6 节讲惰性求值与副作用。读完本章应能区分：Haskell 与 Python 的差别主要不在语法，而在类型系统的检查能力与默认
 求值方式。语法细节、类型类规则与范畴论留到后续章节。
 
 \section{脚本与 GHCi}\label{ux811aux672cux4e0e-ghci}
@@ -474,10 +474,32 @@ Haskell & \passthrough{\lstinline!data Expr = Lit Int \\| …!} & 只有定义�
 取值为 \passthrough{\lstinline!Just x!} 或 \passthrough{\lstinline!Nothing!}，遗漏 \passthrough{\lstinline!Nothing!} 时编译器会提示。第 9、10 章将把 \passthrough{\lstinline!Maybe!} 作为
 普通实例处理。
 
+\subsection{各种语言的 REPL 比较}\label{ux5404ux79cdux8bedux8a00ux7684-repl-ux6bd4ux8f83}
+
+1.1 节介绍了 GHCi 的基本用法。把不同语言的 REPL 并排看，差别同样反映语言核心：
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Python} 的 REPL 同样打印表达式值，差别有两点：Python 允许 \passthrough{\lstinline!x = x + 1!} 这类修改状态的
+  语句，GHCi 没有可变变量；Python 打印任何对象（函数显示为 \passthrough{\lstinline!<function id at 0x...>!} 的
+  地址形式），Haskell 对没有 \passthrough{\lstinline!Show!} 实例的值直接报错。
+\item
+  \textbf{Node / Lisp} 的 REPL 以表达式为核心，但可以随时就地产生副作用（修改对象、打印）；
+  GHCi 中副作用必须显式进入 \passthrough{\lstinline!IO!}：\passthrough{\lstinline!putStrLn "hi"!} 会执行，但对象无法就地修改。
+\item
+  \textbf{ML 系（SML / OCaml）} 的 REPL 与 GHCi 最接近：表达式驱动、静态类型，差别主要在求值
+  策略（严格）与模块系统的组织方式。
+\end{itemize}
+
+这些差别不是交互环境的设计选择，而是语言核心（纯函数、无赋值）在 REPL 上的体现。
+本书对 REPL 的介绍到此为止：日常使用以脚本运行为主，工程各章的代码都以可编译文件的形式
+给出。
+
 \section{函数式语言及其近亲}\label{ux51fdux6570ux5f0fux8bedux8a00ux53caux5176ux8fd1ux4eb2}
 
 这一节把视野从 Haskell 扩展到整个函数式语言家族：先看家族内部三条路线的差异，再看
-Haskell 的近亲，最后看各家 REPL 的差别。
+Haskell 的近亲。各家 REPL 的比较已放在 1.4.3 节。
 
 \subsection{三条路线}\label{ux4e09ux6761ux8defux7ebf}
 
@@ -540,28 +562,6 @@ Idris 展示的是“把更多约束交给编译器”的极限。
 对照之下，Haskell 独有的部分是默认惰性、以 \passthrough{\lstinline!IO!} 组织副作用，以及 GHC 的工程生态；语法、
 ADT、类型类与纯函数则是整个家族共享的面。
 
-\subsection{各家 REPL}\label{ux5404ux5bb6-repl}
-
-1.1 节介绍了 GHCi 的基本用法。把不同语言的 REPL 并排看，差别同样反映语言核心：
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Python} 的 REPL 同样打印表达式值，差别有两点：Python 允许 \passthrough{\lstinline!x = x + 1!} 这类修改状态的
-  语句，GHCi 没有可变变量；Python 打印任何对象（函数显示为 \passthrough{\lstinline!<function id at 0x...>!} 的
-  地址形式），Haskell 对没有 \passthrough{\lstinline!Show!} 实例的值直接报错。
-\item
-  \textbf{Node / Lisp} 的 REPL 以表达式为核心，但可以随时就地产生副作用（修改对象、打印）；
-  GHCi 中副作用必须显式进入 \passthrough{\lstinline!IO!}：\passthrough{\lstinline!putStrLn "hi"!} 会执行，但对象无法就地修改。
-\item
-  \textbf{ML 系（SML / OCaml）} 的 REPL 与 GHCi 最接近：表达式驱动、静态类型，差别主要在求值
-  策略（严格）与模块系统的组织方式。
-\end{itemize}
-
-这些差别不是交互环境的设计选择，而是语言核心（纯函数、无赋值）在 REPL 上的体现。
-本书对 REPL 的介绍到此为止：日常使用以脚本运行为主，工程各章的代码都以可编译文件的形式
-给出。
-
 \section{惰性求值与副作用}\label{ux60f0ux6027ux6c42ux503cux4e0eux526fux4f5cux7528}
 
 \subsection{惰性}\label{ux60f0ux6027}
@@ -605,7 +605,12 @@ Haskell 处理副作用的方式不是禁止，而是\textbf{把副作用写进�
 
 \section{总结}\label{ux603bux7ed3}
 
-本章需要保留的结论有三条：
+本章做了四件事：用最小脚本与 GHCi 建立对 Haskell 的第一印象（1.1 节）；用同一个求值器
+演示三种写法，引出表达问题（1.2、1.3 节）；把差异放到语言比较中看------与 C、Go、Scala 的
+命令式对照、函数式家族内部的路线与近亲、各家 REPL 的差别（1.4、1.5 节）；最后讲惰性求值
+与副作用（1.6 节）。
+
+贯穿全章的有三条结论：
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -618,13 +623,13 @@ Haskell 处理副作用的方式不是禁止，而是\textbf{把副作用写进�
   \textbf{副作用写在类型里}，一个函数是否纯净可以直接从签名读出。
 \end{enumerate}
 
-第 2 章起逐条展开这三点。语法细节、类型类的完整规则、范畴论与真实项目的组织方式分别
-留到第 2--4、4、5、11 章。
+第 2 章起逐条展开这三点。本章遗留的问题：语法细节（第 2--4 章）、类型类的完整规则
+（第 4 章）、范畴论（第 5 章起）、惰性求值的代价（第 2 章）。
 
 \section*{参考文献}
 \addcontentsline{toc}{section}{参考文献}\label{ux53c2ux8003ux6587ux732e}
 
-本章属于概念综述，没有依赖某一本书的推导，两处关键概念的出处如下：
+本章属于概念综述，没有依赖某一本书的推导。关键概念的出处与延伸资源如下：
 
 \begin{itemize}
 \tightlist
@@ -640,4 +645,20 @@ Haskell 处理副作用的方式不是禁止，而是\textbf{把副作用写进�
 \item
   \textbf{PureScript 文档}。“\href{https://github.com/purescript/documentation/blob/master/Related-Projects.md}{Related Projects}”。
   1.5 节对派生语言与同源语言的对比据此文档。
+\item
+  \textbf{Haskell 官网}。\url{https://www.haskell.org/}。下载、教程与社区入口，1.1 节的 GHC 与 GHCi
+  都可以从这里获取。
+\item
+  \textbf{GHC 用户指南}。\url{https://downloads.haskell.org/ghc/latest/docs/users_guide/}，其中
+  GHCi 一章给出 \passthrough{\lstinline!:t!}、\passthrough{\lstinline!:l!} 等命令的完整清单与 \passthrough{\lstinline!:\{ ... :\}!} 的规则。
+\item
+  \textbf{Hoogle}。\url{https://hoogle.haskell.org/}。按名字或类型检索 \passthrough{\lstinline!base!} 等包；查找 \passthrough{\lstinline!(.)!}、
+  \passthrough{\lstinline!curry!}、\passthrough{\lstinline!uncurry!} 的签名用它最快。
+\item
+  \textbf{Python 官方文档}。\url{https://docs.python.org/3/}。1.1 与 1.4 节的 Python 对照代码与其
+  语义一致，REPL 行为见官方教程。
+\item
+  \textbf{SICP}。Abelson 与 Sussman, \emph{Structure and Interpretation of Computer Programs},
+  2nd ed. MIT Press, 1996；\href{https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/6515/sicp.zip/index.html}{在线版}。
+  1.5.1 节 Lisp 路线（代码即数据、宏）的系统叙述。
 \end{itemize}

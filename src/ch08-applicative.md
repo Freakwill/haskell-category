@@ -1,4 +1,4 @@
-# 第 8 章 应用函子：`<*>`、lax monoidal 与实例
+# 第 8 章 应用函子
 
 > 状态：试写稿（第一稿，待审） ｜ 目标 2.8 万字 ｜ 代码：`code/src/Ch08/Applicative.hs`
 
@@ -53,12 +53,14 @@ class Functor f => Applicative f where
 **定义 8.2（应用函子）** `Applicative f` 的实例应当满足，对一切 `u :: f (a -> b)`、
 `v :: f a`、`w :: f a`、`x :: a`、`y :: a`、`f :: a -> b`：
 
+以下四条定律用数学记号书写：$\eta$ 表示 `pure`，$\circledast$ 表示 `<*>`。
+
 $$
 \begin{aligned}
-&\mathsf{pure}\;\mathsf{id} \mathbin{<\!*>} v = v && \text{恒等} \\
-&\mathsf{pure}\;(\circ) \mathbin{<\!*>} u \mathbin{<\!*>} v \mathbin{<\!*>} w = u \mathbin{<\!*>} (v \mathbin{<\!*>} w) && \text{复合} \\
-&\mathsf{pure}\;f \mathbin{<\!*>} \mathsf{pure}\;x = \mathsf{pure}\;(f\,x) && \text{同态} \\
-&u \mathbin{<\!*>} \mathsf{pure}\;y = \mathsf{pure}\;(\$\;y) \mathbin{<\!*>} u && \text{交换}
+\eta\,\mathrm{id} \circledast v &= v && \text{恒等} \\
+\eta\,(\circ) \circledast u \circledast v \circledast w &= u \circledast (v \circledast w) && \text{复合} \\
+\eta\,f \circledast \eta\,x &= \eta\,(f\,x) && \text{同态} \\
+u \circledast \eta\,y &= \eta\,(\lambda f.\ f\,y) \circledast u && \text{交换}
 \end{aligned}
 $$
 

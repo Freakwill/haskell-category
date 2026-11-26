@@ -288,7 +288,7 @@ def md_to_tex(md_text: str, out_path: Path) -> None:
 
 def build_fragments(meta) -> None:
     chapters_by_n = {c["n"]: c for c in meta["structure"]["chapters"]}
-    for n in range(1, 23):
+    for n in range(1, 22):
         ch = chapters_by_n[n]
         out = FRAG / f"ch{n:02d}.tex"
         if n in FULL_CHAPTERS:
