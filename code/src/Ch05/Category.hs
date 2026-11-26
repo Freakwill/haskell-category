@@ -3,10 +3,10 @@
 --
 -- The objects are @A, B, C@; the arrows form a chain with a shortcut:
 --
--- >        F          G
+-- >        AB          BC
 -- >   A ------> B ------> C
 -- >    \                  ^
--- >     \       H         |
+-- >     \       AC         |
 -- >      +----------------+
 --
 -- plus one identity on each object. That is six arrows and ten composable
@@ -40,7 +40,7 @@ data Obj = A | B | C
 
 -- ANCHOR: arrows
 -- | Six arrows: three identities, three "real" ones.
-data Arrow = IdA | IdB | IdC | F | G | H
+data Arrow = IdA | IdB | IdC | AB | BC | AC
     deriving (Eq, Show, Enum, Bounded)
 
 allArrows :: [Arrow]
@@ -51,17 +51,17 @@ src :: Arrow -> Obj
 src IdA = A
 src IdB = B
 src IdC = C
-src F   = A
-src G   = B
-src H   = A
+src AB   = A
+src BC   = B
+src AC   = A
 
 tgt :: Arrow -> Obj
 tgt IdA = A
 tgt IdB = B
 tgt IdC = C
-tgt F   = B
-tgt G   = C
-tgt H   = C
+tgt AB   = B
+tgt BC   = C
+tgt AC   = C
 
 -- ANCHOR: identity
 identity :: Obj -> Arrow
@@ -79,15 +79,15 @@ compose g f = lookup (g, f) table
 table :: [((Arrow, Arrow), Arrow)]
 table =
     [ ((IdA, IdA), IdA)
-    , ((F,   IdA), F)
-    , ((H,   IdA), H)
+    , ((AB,   IdA), AB)
+    , ((AC,   IdA), AC)
     , ((IdB, IdB), IdB)
-    , ((G,   IdB), G)
+    , ((BC,   IdB), BC)
     , ((IdC, IdC), IdC)
-    , ((IdB, F),   F)
-    , ((G,   F),   H)
-    , ((IdC, G),   G)
-    , ((IdC, H),   H)
+    , ((IdB, AB),   AB)
+    , ((BC,   AB),   AC)
+    , ((IdC, BC),   BC)
+    , ((IdC, AC),   AC)
     ]
 -- ANCHOR_END: compose
 
@@ -136,9 +136,9 @@ interp :: Arrow -> Int -> Int
 interp IdA = id
 interp IdB = id
 interp IdC = id
-interp F   = (+ 1)
-interp G   = (* 2)
-interp H   = (* 2) . (+ 1)
+interp AB   = (+ 1)
+interp BC   = (* 2)
+interp AC   = (* 2) . (+ 1)
 
 -- | Functor laws: identity is preserved, composition is preserved.
 functorLawHolds :: Bool
@@ -167,14 +167,14 @@ swapIsIso = and
 -- ANCHOR_END: iso
 
 -- ANCHOR: bad-functor
--- | 一个"看起来像函子"的映射：只把 @H@ 送错了一个函数。
+-- | 一个"看起来像函子"的映射：只把 @AC@ 送错了一个函数。
 badInterp :: Arrow -> Int -> Int
 badInterp IdA = id
 badInterp IdB = id
 badInterp IdC = id
-badInterp F   = (+ 1)
-badInterp G   = (* 2)
-badInterp H   = (+ 3)   -- 错的：H = G . F，应该等于 (* 2) . (+ 1)
+badInterp AB   = (+ 1)
+badInterp BC   = (* 2)
+badInterp AC   = (+ 3)   -- 错的：AC = BC . AB，应该等于 (* 2) . (+ 1)
 
 -- | 同一套检查，作用在假函子上：返回 'False'。
 badFunctorLawHolds :: Bool

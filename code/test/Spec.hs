@@ -77,14 +77,14 @@ main = hspec $ do
 
   describe "Ch05.Category" $ do
     it "复合的方向：先 f 后 g" $ do
-      compose (identity B) F `shouldBe` Just F
-      compose F (identity A) `shouldBe` Just F
+      compose (identity B) AB `shouldBe` Just AB
+      compose AB (identity A) `shouldBe` Just AB
 
     it "类型对不上就复合不了" $
-      compose F G `shouldBe` Nothing
+      compose AB BC `shouldBe` Nothing
 
-    it "两条路径都得到 H：G . F = H" $
-      compose G F `shouldBe` Just H
+    it "两条路径都得到 AC：BC . AB = AC" $
+      compose BC AB `shouldBe` Just AC
 
     it "结合律在全部 6^3 个三元组上成立" $
       assocHolds `shouldBe` True
@@ -99,7 +99,7 @@ main = hspec $ do
       functorLawHolds `shouldBe` True
 
     it "函子的具体取值" $
-      interp H 3 `shouldBe` 8
+      interp AC 3 `shouldBe` 8
 
     it "同构：swapPair 自逆" $
       swapIsIso `shouldBe` True
