@@ -1,0 +1,308 @@
+{
+  "schema": "book-writing-metadata/1",
+  "updated": "2026-11-19",
+  "usage_prompt": "把本文件当作写作契约。structure 决定写哪一章、目标多少字；content_strategy 决定章节内部的推进顺序；code 与 templates 决定代码如何进入正文；typography 与 terminology 决定排版与用语；quality_gates 是交稿前必须跑过的命令。字段值若是长句，按 prompt 理解，不需要逐字复述。",
+  "priority_order": ["code（可验证性）", "typography（体例一致性）", "language_and_style（文风）", "structure 与其余各项"],
+  "words_unit": "structure.chapters 中的 words 是目标字数（汉字，不含代码），不是当前实际字数；当前实际进度见 写作计划.md 的章节表",
+  "book": {
+    "title_zh": "边学 Haskell 边学范畴论",
+    "title_en": "Haskell and Category Theory, Together",
+    "subtitle_zh": "从可运行的代码反推数学",
+    "author": "宋丛威",
+    "genre": "技术专著（面向工程师的数学化编程书）",
+    "edition": "v2 试写",
+    "language": "zh-CN",
+    "code_language": "Haskell (GHC 9.14)",
+    "comparison_languages": ["Python", "C", "Go", "Scala", "Lisp/Scheme"],
+    "length": {
+      "committed_words": 240000,
+      "ceiling_words": 320000,
+      "unit": "汉字（不含代码）",
+      "sample_chapters": [7, 9]
+    },
+    "audience": {
+      "primary": "会 Python（或 Java/Go）、写过生产代码、被 Haskell 类型系统或范畴论术语卡住的程序员",
+      "secondary": "需要把范畴论落到代码上的研究生",
+      "assumed_background": "集合、函数、归纳法；不假设范畴论；不假设类型论",
+      "explicitly_not_for": "想查语法速查表的读者（那类需求交给 Hackage 与 GHC User's Guide）"
+    },
+    "positioning_prompt": "这不是语法手册，也不是范畴论教科书。它的主张是：程序员已经会的几件事（模式匹配、组合、fold、接口）在数学上都有名字，把这些名字讲清楚，代码与证明就是同一件事的两种写法。全书以可编译的代码为证据，以范畴论为组织线索，遇到数学与代码不一致处（Hask 不是严格的范畴、⊥ 破坏 totality）必须明说，不粉饰。",
+    "differentiation": {
+      "against": "《魔力Haskell》（韩冬，人民邮电 2016）",
+      "claim": "不抢语法完整度，不写查阅型章节；赢在可验证（代码进 CI）、现代工具链（GHC 9.14 + HLS）、范畴论篇幅（5 章 + 单子理论一整章 vs 5 页）"
+    }
+  },
+
+  "language_and_style": {
+    "register": "学术性技术写作，陈述体",
+    "sentence_policy": "陈述句为主；每段一个论点，先结论后依据；判断必须给出依据（省在哪一步、在什么条件下成立）",
+    "forbidden": [
+      "反问句、感叹句、排比句",
+      "破折号制造的停顿节奏（一段内最多一处）",
+      "「你会发现」「记住这句」「相信我」这类指导语",
+      "「众所周知」「显然」（确有初等证明时写「直接计算可得」并给出计算）",
+      "emoji、装饰性符号、颜文字",
+      "第二人称「你」作主语（用「读者」或改写成无主句）",
+      "「我们把……称为」之外的「我们」；证明中可用「我们」"
+    ],
+    "preferred": [
+      "定义 → 例子 → 反例 → 代码的顺序",
+      "术语第一次出现给出中文与英文",
+      "数字与代码结果精确到实际输出",
+      "承认边界：「这一说法在 ⊥ 存在时不成立，见第 6 章」"
+    ],
+    "metaphor_policy": "一章之内，同一比喻最多用一次，用完立刻回到定义；不得围绕比喻展开推理",
+    "style_prompt": "写中文技术散文。句子短，主语明确，不用修辞制造节奏。每段只讲一件事：先给判断，再给依据，依据要具体到行号、类型、命令输出或数学定义。允许说「这里不清楚」或「这一点本书不展开」，不允许用模糊措辞掩盖。不使用第二人称，不使用感叹号。术语第一次出现写「**中文（English）**」，之后只用中文。",
+    "chapter_opening_prompt": "每章开头不超过 120 字：说明本章要解决的问题、读者读完能做什么、以及它与前一章的关系。不写「本章将带你领略」这类导览语。",
+    "bad_example": "这一章不打算讲清楚任何概念。它只想做一件事：让你看完之后，愿意翻到第二章。",
+    "good_example": "本章用同一个求值器演示三种写法，目的是给出 Haskell 与其他语言差异的初步印象。"
+  },
+
+  "structure": {
+    "parts": [
+      {"id": "I", "title": "语言", "chapters": [1, 2, 3, 4], "role": "先把 Haskell 的语法讲到够用，同时埋下范畴论的伏笔（和/积、消去规则、类型类即谓词）"},
+      {"id": "II", "title": "范畴与函子", "chapters": [5, 6, 7], "role": "范畴的定义与验证、Hask 的边界、函子与自然变换"},
+      {"id": "III", "title": "应用函子", "chapters": [8], "role": "笛卡尔闭范畴 → lax monoidal → 实例巡礼（原第 8、9 章合并）"},
+      {"id": "IV", "title": "单子", "chapters": [9, 10], "role": "join/μ 与 >>=、Kleisli 范畴、实例巡礼、变换器（原第 10–13 章合并为两章）"},
+      {"id": "V", "title": "工程", "chapters": [11, 12, 13, 14, 15], "role": "IO 与 REPL、包与测试、科学计算、并发、完整项目（新增 IO/REPL 章与科学计算章）"},
+    {"id": "VI", "title": "进阶", "chapters": [16], "role": "与范畴论主线相关的语言扩展（GADTs、TypeFamilies 等），按主线系统讲，不按手册罗列"}
+    ],
+    "chapters": [
+      {"n": 1, "file": "ch01-first-impression.md", "title": "Haskell 初体验", "words": 12000, "status": "试写稿", "verification": "L2", "hook": "最小脚本与 GHCi 入门；同一求值器的三种写法：元组、类层次、data", "forward_refs": ["3.1", "1.3.4 表达问题"]},
+      {"n": 2, "file": "ch02-functions.md", "title": "函数、递归、高阶函数、Curry 化", "words": 13000, "status": "试写稿", "verification": "L2", "hook": "三个 for 循环 → map/filter/foldr → Curry 化 → 函数空间同构", "forward_refs": ["8（curry 与笛卡尔闭范畴）"]},
+      {"n": 3, "file": "ch03-data.md", "title": "代数数据类型与模式匹配", "words": 13000, "status": "试写稿", "verification": "L2", "hook": "和/积/单位/空 + HoTT：类型即空间、恒等类型、集合层", "forward_refs": ["5（积与余积）", "7（初始性）"]},
+      {"n": 4, "file": "ch04-typeclass.md", "title": "类型类：ad-hoc 多态", "words": 14000, "status": "试写稿", "verification": "L2", "hook": "类型类不是接口；HoTT 视角下约束是类型上的结构，定律是义务；deriving 只派生结构", "forward_refs": ["7（自然变换与类型类定律）"]},
+      {"n": 5, "file": "ch05-category.md", "title": "范畴：对象、态射、复合、函子", "words": 15000, "status": "试写稿", "verification": "L2", "hook": "从 (.) 与 id 的三条定律出发；有限范畴手算验证公理；假函子反例", "forward_refs": ["7"]},
+      {"n": 6, "file": "ch06-hask.md", "title": "Hask：把类型系统当范畴看", "words": 14000, "status": "试写稿", "verification": "L2", "hook": "对象=类型、态射=函数；⊥ 与 seq 使单位律失效；全函数/CPO/义务三条出路", "forward_refs": ["9（Kleisli）"]},
+      {"n": 7, "file": "ch07-functor.md", "title": "函子与自然变换：fmap 与自然性", "words": 18000, "status": "试写稿", "verification": "L2", "hook": "先顺盒子比喻，再让它失效；自然性方块用 TikZ 手画", "forward_refs": ["8", "9"]},
+      {"n": 8, "file": "ch08-applicative.md", "title": "应用函子：<*>、lax monoidal 与实例巡礼", "words": 28000, "status": "试写稿", "verification": "L2", "hook": "Applicative ≈ lax monoidal functor，本书的学术超车点；六个实例各配一个「为什么长这样」", "forward_refs": ["9"]},
+      {"n": 9, "file": "ch09-monad.md", "title": "单子：join / μ、Kleisli 范畴与实例巡礼", "words": 40000, "status": "骨架", "verification": "L2", "hook": "三种等价视角写成可读的证明；样章之一，半群视角须请数学同行复核；IO 的 RealWorld 只当直觉", "forward_refs": ["10"]},
+      {"n": 10, "file": "ch10-transformer.md", "title": "Monad Transformer 与 mtl", "words": 14000, "status": "空", "verification": "L2", "hook": "底稿完全没有；工程读者最需要", "forward_refs": ["15"]},
+      {"n": 11, "file": "ch11-repl.md", "title": "输入-输出与 REPL 循环", "words": 15000, "status": "空", "verification": "L2", "hook": "getLine/putStrLn/interact → do 记法 → READ-EVAL-PRINT 循环；与 GHCi 对照", "forward_refs": ["15"]},
+      {"n": 12, "file": "ch12-package.md", "title": "模块、包、cabal、测试与文档", "words": 12000, "status": "空", "verification": "L2", "hook": "以本书自己的 code/ 工程为案例", "forward_refs": []},
+      {"n": 13, "file": "ch13-scientific.md", "title": "科学计算：数值、符号与定理验证", "words": 15000, "status": "空", "verification": "L2", "hook": "三条线：数值计算（数组操作）、符号计算、逻辑推理与简单定理验证；不写 HPC", "forward_refs": []},
+      {"n": 14, "file": "ch14-concurrency.md", "title": "并发与并行：async、STM、par", "words": 14000, "status": "空", "verification": "L2", "hook": "STM 的 monad 结构与可组合性", "forward_refs": []},
+      {"n": 15, "file": "ch15-project.md", "title": "实战：写一个解析器与一个小服务", "words": 18000, "status": "空", "verification": "L2", "hook": "把前 14 章的概念收进一个能跑的项目", "forward_refs": []},
+      {"n": 16, "file": "ch16-extensions.md", "title": "语言扩展：与范畴论主线相关的部分", "words": 12000, "status": "空", "verification": "L2", "hook": "只讲主线相关的少数扩展（GADTs、TypeFamilies 等），按主线系统讲，不按手册罗列", "forward_refs": []}
+    ],
+    "appendices": [
+      {"id": "A", "file": "appendix-a-math.md", "title": "数学补遗：集合、态射、自然变换的标准定义"},
+      {"id": "B", "file": "appendix-b-solutions.md", "title": "习题答案（推导题全给，构造题给提示）"},
+      {"id": "C", "file": "appendix-c-glossary.md", "title": "中英术语对照"},
+      {"id": "D", "file": "appendix-d-toolchain.md", "title": "工具链与版本矩阵"}
+    ]
+  },
+
+  "content_strategy": {
+    "chapter_skeleton": [
+      "1. 问题：一个具体场景，用代码或数据提出，不用「本章介绍……」开头",
+      "2. 机制：定义与推导，数学记号与代码并排，先例子后定义或先定义后例子（按难度择一，全章一致）",
+      "3. 代码：可编译实现 + 真实运行/报错输出",
+      "4. 常见错误：2–4 条，每条给出真实报错原文与原因",
+      "5. 练习：从 1 连续编号，不分 A/B/C 类，题目类型写在题干里",
+      "6. 参考文献：本章概念落在哪些书的哪些节"
+    ],
+    "progression_prompt": "全书按「语法 → 结构 → 范畴 → 单子 → 工程」推进。每个数学概念必须在同一章或前一章有对应代码；每个代码模式必须在同一章或后一章有对应数学名称。允许暂时只用不解释，但必须写明「第 N 章解释」，且该书必须真的在第 N 章解释。不设「数学预备章」，数学随代码需要引入。",
+    "hott_thread": {
+      "intro_chapters": [3, 4],
+      "core_moves": [
+        "类型解释为空间，项解释为点，恒等类型解释为路径，refl 为常路径",
+        "函数解释为连续映射：连续指保持路径（ap），不是额外拓扑条件；四条对应是模型给出的，不是定义",
+        "两层结构：外层 Type 是 (∞,1)-范畴（对象=类型，态射=函数）；内层每个类型是 ∞-群胚（态射=路径）；Hask 只用外层，内层退化",
+        "集合（0-截断）：所有恒等类型至多一个元素；data 只给出点构造子，因此本书的类型都是集合",
+        "命题即类型；命题对应 -1-截断类型",
+        "单值性：等价即相等；Haskell 无法表达，Coercible 不等于单值性"
+      ],
+      "boundary_claims": [
+        "Eq 是判定过程，不是恒等类型：函数类型无法给出 Eq，而 HoTT 可以谈函数外延性",
+        "Haskell 没有商类型，没有高阶归纳类型，因此没有非平凡路径",
+        "Haskell 的类型不总（⊥ 与不终止），HoTT 的类型论是总的；总性指求值必然终止，不指每个类型都有元素（空类型 0 无元素）"
+      ],
+      "prompt": "讲 HoTT 时只用到路径、恒等类型、集合层、单值性这四个概念，不引入高阶路径的运算、不写类型论的形式规则、不用 Agda 语法。每个 HoTT 概念出现时，必须同时指出它在 Haskell 里对应什么、缺什么。涉及「Haskell 的类型都是集合」时，限定在「仅由点构造子的归纳类型，且参数为集合」。"
+    },
+    "comparison_sections": {
+      "rule": "同一节同时给出 Python（或其他语言）实现与 Haskell 实现时，必须拆成两个小节",
+      "headings": ["### N.M.1 Python（等其他语言）实现", "### N.M.2 Haskell 实现"],
+      "order": "先对方语言，附真实运行结果与局限；再 Haskell；对照表放在 Haskell 小节末尾",
+      "exceptions": ["第 1 章 1.1 只讲 Python 两种写法，Haskell 版本在 1.2 统一比较"],
+      "fairness": "对方语言要用它的惯用写法，不用稻草人；Python 示例至少给出一种「更好但仍不够」的写法"
+    },
+    "section_split": "内容难度高或篇幅长的节必须拆成 N.M.K 子节。经验阈值：一节的正文超过约 2500 字，或含 4 个以上彼此独立的概念，就拆。子节标题用对象式短语，不写「关于……的讨论」；拆完后每节应能在 10 分钟内读完。",
+    "math_conventions": "数学核对不代具体数值，直接写符号推演：|Hom(A×B,C)| = |C|^(|A||B|) = ... = |Hom(A,C^B)|，不写 5^6 = 15625。具体数值只出现在代码运行输出里。",
+    "no_preview_chapters": "不写「本书结构」「如何阅读本书」「数学预备」三章；前言承担这些内容，且不超过 3 页"
+  },
+
+  "code": {
+    "source_of_truth": "code/（cabal 工程）。正文一个字都不手抄 Haskell 代码。",
+    "insertion": {
+      "syntax": "{{#include ../code/src/ChNN/Module.hs:anchor-name}}",
+      "anchor_begin": "-- ANCHOR: anchor-name",
+      "anchor_end": "-- ANCHOR_END: anchor-name",
+      "python_anchor_begin": "# ANCHOR: anchor-name",
+      "python_anchor_end": "# ANCHOR_END: anchor-name",
+      "hard_constraint": "锚点不存在或未闭合时 mdbook build 必须失败；因此不得为了排版临时删锚点",
+      "naming": "小写连字符，语义化：nat、natRec、sum-product、classes",
+      "granularity": "一个锚点对应正文一次引用；同一段代码需要多处引用时复制锚点而不复制代码（用一个锚点多次 include）"
+    },
+    "project_layout": {
+      "root": "code/",
+      "modules": "code/src/ChNN/Module.hs，一章一个模块，导出本章全部正文引用的名字",
+      "tests": "code/test/Spec.hs，hspec，每章一个 describe",
+      "python": "code/python/*.py，每个文件可独立运行并自带断言或打印",
+      "cabal": "exposed-modules 按章追加；依赖只增不改"
+    },
+    "dependency_policy": "只用 base、containers、text、mtl、hspec；不得为了让示例通过而删掉教学意图（例如把抽象换成具体类型）",
+    "transcript_policy": {
+      "rule": "正文中的 GHCi 输出、报错、Python 输出必须是真实粘贴，含版本与文件名，不做美化",
+      "format": "```\n$ python3 code/python/eval_classes.py\n-4\nTypeError: ...\n```",
+      "error_quotes": "报错保留原文与提示行（如 Probable cause），不改写为中文"
+    },
+    "error_examples": "每章 2–4 条，必须是作者或 CI 真实遇到的错误；不虚构编译器措辞",
+    "verification_levels": {
+      "L0": "伪代码或片段，不进工程；正文标注「示意」",
+      "L1": "在 GHCi 中逐条求值通过；不保证编译为模块",
+      "L2": "进 cabal 工程，cabal build 通过，且至少一条 hspec 断言覆盖其行为"
+    },
+    "comments": "代码注释用英文；正文解释用中文"
+  },
+
+  "templates": {
+    "section_opening": "## {N.M} {对象式标题}\n\n{一句话说明本节要解决的问题}\n\n{第一个具体例子，代码或数据}",
+    "code_intro": "{一句话说明这段代码要做什么}\n\n```haskell\n{{#include ../code/src/ChNN/Module.hs:{anchor}}}\n```\n\n{读法：指出一两个关键点，不复述代码}",
+    "transcript": "```\n$ {command}\n{真实输出}\n```\n\n{输出中值得注意的一行，以及它为什么长这样}",
+    "exercise_rule": "练习从 1 连续编号，不分 A/B/C 类；题目类型写在题干里（证明… / 构造… / 改写…）。上面 exercise 模板中的 A/B/C 分组已废弃。",
+    "note": "◇ **{一句话判断}。** {两句以内的依据，或指向后文的章节号}",
+    "definition": "**定义 {N.K}（{对象}）** {精确表述，含条件与结论}{必要时接一句读法或反例}",
+    "example": "**例 {N.K}（{对象}）** {具体类型名、具体值或可运行代码，不用「某个类型」这类空例}",
+    "confusion": "🦂 {读者最可能想错的那句话}。{为什么不对，或正确的读法}",
+    "comparison_table": "{一句引出语}\n\n| 维度 | {A} | {B} | {C} |\n|---|---|---|---|\n| {维度1} | ... | ... | ... |\n\n{一句结论，指出哪个维度是本章主线}",
+    "exercise": "## N.M 练习，随后为 1. 2. 3. 连续编号的题目，不分 A/B/C 类，题目类型写在题干里",
+    "references": "## 参考文献\n\n{一句说明本章依赖哪些底本}\n\n- **{作者}.** *{书名}*. {出版信息}. {章/节号}。{本章哪一节用了它}\n- **{库或文档}**：{函数名}：{本章哪一节用到}",
+    "chapter_status_line": "> 状态：{试写稿|骨架|空} ｜ 目标 {n} 字 ｜ 代码：`code/src/ChNN/Module.hs`"
+  },
+
+  "typography": {
+    "headings": {
+      "chapter": "# 第 N 章 {中文标题}",
+      "section": "## N.M {中文标题}",
+      "subsection": "### N.M.K {中文标题}",
+      "no_decorative_headings": "标题只写对象，不写机锋（用「常见错误」不用「四个真会踩的坑」）"
+    },
+    "terms": {
+      "first_use": "**中文（English）**，如 **同伦类型论（Homotopy Type Theory，下称 HoTT）**",
+      "later_use": "只用中文，不再加粗，不再重复英文",
+      "code_identifiers": "一律用反引号，不用加粗",
+      "bold_usage": "仅两类：术语首次出现、段落标签（如常见错误的小标题）；不用于句子内部强调"
+    },
+    "math": {
+      "inline": "$...$ 必须在同一物理行内闭合，禁止跨行（MathJax 不渲染）",
+      "display": "$$ 单独成行，公式另起一行，编号可省",
+      "notation": "\\colon 表示类型标注；复合写 g \\circ f；对象用 A, B, C，范畴用 \\mathcal{C}",
+      "consistency": "同一符号全书唯一含义；符号表见附录 A"
+    },
+    "punctuation": "中文全角标点；中英之间加空格；数字与单位半角；不用「！！」「？？」；省略号用「……」",
+    "quotes": "中文引号「」用于术语与反讽，英文引号\"\"用于直接引用",
+    "inline_code": "行内代码用反引号，包含包名与函数名：`Data.List.foldl'`",
+    "emphasis": "不用斜体做强调；不用下划线"
+  },
+
+  "terminology": {
+    "policy": "一个中文译名对应一个英文术语，全书唯一；首次出现给出英文，附录 C 汇总。外文人名一律用原文，不音译（Curry 化，不写柯里化）",
+    "definitions": "重要概念写成 **定义 N.K（对象）**，紧跟定义正文，编号按章连续；不单独设「定义」小节；语法说明不套定义框",
+    "confusion_marker": "🦂 加在段首，标记「读者很可能想错的地方」，不是「重要内容」；每章不超过 8 处",
+    "preferred_translations": {
+      "functor": "函子",
+      "natural transformation": "自然变换",
+      "applicative functor": "应用函子",
+      "monad": "单子",
+      "monoid": "幺半群",
+      "identity type": "恒等类型",
+      "higher inductive type": "高阶归纳类型",
+      "univalence": "单值性",
+      "quotient type": "商类型",
+      "elimination rule": "消去规则",
+      "recursor": "递归子",
+      "sum type": "和类型",
+      "product type": "积类型",
+      "payload": "载荷",
+      "tag": "标签"
+    },
+    "keep_english": ["Hask", "Applicative", "Monad", "fmap", "join", "pure", ">>=", "newtype", "deriving"],
+    "glossary_file": "src/appendix-c-glossary.md",
+    "glossary_prompt": "术语表按三列：中文、英文、首次出现章节与一句话定义。定义不超过 40 字，不举例，不引用。"
+  },
+
+  "figures_tables": {
+    "default": "优先用表格，其次用代码或文字交换图，最后才用插图",
+    "tables": {
+      "when": "三方以上对照、维度可枚举、结论可由读者逐格核对",
+      "style": "无竖线装饰；首列为维度名；表后必须有一句结论，指出哪个维度是本节主线"
+    },
+    "diagrams": {
+      "exchange_diagrams": "在线版用 ASCII（等宽块）；LaTeX 版用 TikZ 重画，样式与正文一致",
+      "required_tikz": ["第 7 章自然性方块", "第 9 章单子三条定律的交换图"],
+      "ascii_example": "        f          g\n   A ------> B ------> C\n    \\                  /\n     \\______g∘f______/"
+    },
+    "screenshots": "不使用终端截图；一律用文本块粘贴真实输出",
+    "captions": "图题在下方，表题在上方；编号按章：图 7.1、表 3.2",
+    "images": "不插入装饰性图片；如需插图，黑白线稿，300 dpi"
+  },
+
+  "references": {
+    "placement": "每章末尾「参考文献」，正文不插夹注",
+    "exception": "他人提出的概念首次出现时可点名（如「Wadler 1998」），但不给页码",
+    "primary_sources": {
+      "category_theory": "Awodey, *Category Theory* (OUP 2006)，引节号",
+      "mac_lane": "Mac Lane, *Categories for the Working Mathematician*，只引章号",
+      "type_theory": "HoTT Book (IAS 2013)，引章号：第 1–3 章",
+      "lambda_calculus": "Streicher, *CTCL*，供第 8 章 CCC 与 λ-演算对照"
+    },
+    "format": "- **作者.** *书名*. 出版信息. 章节号。{本章哪一节用了它}",
+    "prompt": "章末参考文献只列本章实际用到的书与文档，每条注明用在哪一节；不列「延伸阅读」，不列未读过的书。"
+  },
+
+  "quality_gates": {
+    "commands": [
+      "python3 tools/check_math.py            # 行内公式必须单行闭合",
+      "python3 tools/check_tables.py          # 表格必须有表头分隔行且列数一致",
+      "cd code && cabal build all             # 正文引用的代码必须能编译",
+      "cd code && cabal test all              # 每章至少一组 hspec 断言",
+      "python3 code/python/{file}.py          # Python 示例可独立运行",
+      "mdbook build                           # 锚点缺失即失败"
+    ],
+    "per_chapter_checklist": [
+      "本章所有 include 的锚点存在且被引用",
+      "所有代码块都来自 code/，没有手抄",
+      "所有输出都是真实粘贴",
+      "术语首次出现加粗并给英文",
+      "行内公式无跨行",
+      "章末有参考文献且注明节号",
+      "练习连续编号，不分 A/B/C 类",
+      "本章不出现「我们发现」「让我们」"
+    ],
+    "word_count_rule": "每节 800–1500 字；超过 2000 字必须拆节；少于 400 字的节并入相邻节"
+  },
+
+  "ai_prompts": {
+    "write_section": "你在为《边学 Haskell 边学范畴论》写第 {N} 章第 {M} 节「{标题}」。读者是会 Python 的程序员，不假设范畴论背景。先写 2–3 段：提出问题（具体代码或数据）、给出机制（定义与推导）、落到代码。代码不要手写进正文，用 {{#include ../code/src/Ch{N:02d}/{Module}.hs:{anchor}}} 占位，并在回复末尾单列需要新增的 Haskell 定义与 hspec 断言。文风：陈述句，每段一个论点，判断给依据，不用反问与感叹。术语首次出现写 **中文（English）**。行内公式不得跨行。字数 800–1500。",
+    "revise_style": "下面是一段书稿。请只做减法：删去修辞（比喻、排比、反问、破折号节奏）、删去「你会发现」「记住」这类指导语、把长句拆成主谓明确的短句、把模糊判断换成可核对的依据。不改变技术内容，不增删例子，不调整代码。输出修改后的段落，并在末尾列出你删掉的每一类修辞各一处。",
+    "audit_terms": "检查以下章节的术语处理，输出问题清单：(1) 术语首次出现是否加粗且附英文；(2) 同一术语是否出现两种中文译名；(3) 是否有代码标识符被加粗而非用反引号；(4) 是否有整句加粗（应改为普通句）；(5) 英文术语是否在首次之后仍重复出现。只报问题，不改写。",
+    "check_consistency": "通读第 {N} 章，列出所有指向其他章节的引用（「见第 X 章」「第 X 节」），核对目标章节是否真的讲了该内容；列出所有「将在后文说明」的承诺，核对是否兑现。输出表格：位置、承诺、兑现情况。",
+    "generate_code": "为第 {N} 章第 {M} 节生成 Haskell 代码，要求：只用 base/containers/text，模块 Ch{N:02d}.{Module}，正文需要的每个片段用 -- ANCHOR: {name} / -- ANCHOR_END: {name} 包裹，名字小写连字符；同时给出对应 hspec 断言，覆盖每段锚点的行为；不得为通过测试删减教学意图。最后给出 cabal build 与 cabal test 的命令与预期输出。"
+  },
+
+  "open_decisions": [
+    "第 1 章 1.1 是否改成 Python 实现一/二 + Haskell 对照（当前保留原结构）",
+    "第 7、9 章样章的 LaTeX 版本是否与在线版共用同一份 Markdown（当前决定共用）",
+    "是否引入 Agda 片段作为 HoTT 的对照（当前决定不引入）",
+    "IO 的 RealWorld 模型写到什么程度（当前：只作直觉，明确标注为非规范模型）"
+  ],
+
+  "artifacts": {
+    "repo": "https://github.com/Freakwill/haskell-category",
+    "online": "https://freakwill.github.io/haskell-category/",
+    "plan": "写作计划.md",
+    "draft_2019": "Haskell.md（冻结，只读参考）",
+    "build": "mdbook build → site/；后续 pandoc + ctex 出 LaTeX/PDF"
+  }
+}

@@ -20,3 +20,13 @@ cabal.project.freeze
 .vscode/
 .idea/
 *.swp
+
+# LaTeX 构建产物
+*.aux
+*.log
+*.out
+*.toc
+__pycache__/
+
+# sample 的中间产物（与样稿.pdf 同内容）
+sample/sample.pdf

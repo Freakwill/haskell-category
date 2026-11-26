@@ -14,8 +14,8 @@ SRC = ROOT / "src"
 
 # (part, number, slug, title, target_wan, focus)
 CHAPTERS = [
-    ("第一部分 语言", 1, "ch01-python-to-haskell", "从 Python 到 Haskell：表达式、类型、求值", "1.2",
-     "惰性求值与副作用的第一印象；不要写成语言手册"),
+    ("第一部分 语言", 1, "ch01-first-impression", "Haskell 初体验", "1.2",
+     "与 Python 比命令式、与 C/Go 比类型系统、与 Lisp/Scala 比 FP 路线；留印象，不讲透"),
     ("第一部分 语言", 2, "ch02-functions", "函数、递归、高阶函数、柯里化", "1.3",
      "柯里化为第 8 章的 curry / 笛卡尔闭范畴埋线"),
     ("第一部分 语言", 3, "ch03-data", "代数数据类型与模式匹配", "1.3",
@@ -97,7 +97,7 @@ pre code { line-height: 1.55; }
 
 def chapter_stub(num: int, title: str, slug: str, target: str, focus: str) -> str:
     module = f"Ch{num:02d}"
-    return f"""# {title}
+    return f"""# 第 {num} 章 {title}
 
 > **状态**：待写 ｜ **目标**：{target} 万字 ｜ **代码**：`code/src/{module}/`
 >
@@ -114,7 +114,7 @@ def chapter_stub(num: int, title: str, slug: str, target: str, focus: str) -> st
 ## {num}.3 代码
 
 <!-- 代码不手抄。在 code/src/{module}/ 里写好并用 ANCHOR 标记，
-     这里用 {{#include ../../code/src/{module}/Basics.hs:anchor-name}} 引入。 -->
+     这里用 {{#include ../code/src/{module}/Basics.hs:anchor-name}} 引入。 -->
 
 ## {num}.4 陷阱
 
@@ -149,7 +149,7 @@ def summary_md() -> str:
         if p != part:
             part = p
             lines += [f"# {p}", ""]
-        lines.append(f"- [{title}]({slug}.md)")
+        lines.append(f"- [第 {num} 章 {title}]({slug}.md)")
     lines += ["", "# 附录", ""]
     for slug, title, _t in APPENDICES:
         lines.append(f"- [{title}]({slug}.md)")

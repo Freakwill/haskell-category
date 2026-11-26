@@ -36,3 +36,8 @@ jobs:
       - name: Test
         working-directory: code
         run: cabal test all --test-show-details=direct
+      - name: Python examples
+        run: |
+          python3 code/python/eval_naive.py
+          python3 code/python/eval_oop.py
+          python3 code/python/eval_classes.py

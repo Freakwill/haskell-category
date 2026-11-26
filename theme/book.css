@@ -13,3 +13,5 @@
 code { font-family: var(--code-font); }
 pre code { line-height: 1.55; }
 .content table { font-size: 1.5rem; }
+/* 表格首列是行标签，不要折行 */
+.content table td:first-child { white-space: nowrap; }

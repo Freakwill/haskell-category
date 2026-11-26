@@ -1,0 +1,42 @@
+%!TEX program = lualatex
+% 样稿：与正文（latex/book.tex）共用前导、前件与章节文件，
+% 唯一区别是样稿标题页与样稿说明。
+\documentclass[11pt,a4paper,fontset=fandol]{ctexbook}
+
+\input{../latex/book-preamble}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{3.2cm}
+  {\Large\bfseries 边学 Haskell 边学范畴论\par}
+  \vspace{0.4cm}
+  {\large\bfseries 从可运行的代码反推数学\par}
+  \vspace{1.2cm}
+  {\large 宋丛威\par}
+  \vspace{2.2cm}
+  {\large 样稿\par}
+  \vspace{0.4cm}
+  {\normalsize 内容简介 $\cdot$ 序 $\cdot$ 目录 $\cdot$ 第一章 $\cdot$ 第五章（全文）$\cdot$ 其余章节（仅标题）\par}
+  \vspace{1.2cm}
+  {\small 供编辑与评审审阅\par}
+\end{titlepage}
+
+\frontmatter
+
+\chapter*{样稿说明}
+\addcontentsline{toc}{chapter}{样稿说明}
+
+本册为《边学 Haskell 边学范畴论》的样稿，供编辑与评审参考。样稿与正式版正文的唯一区别
+是本说明与样稿标题页；正文取自正式版对应章节，未作删改。样稿包含内容简介、序、目录、
+第一章与第五章的全文；其余章节在目录中列出标题，正文从略。
+
+\input{../latex/front}
+\tableofcontents
+
+\mainmatter
+\setcounter{secnumdepth}{3}
+\input{../latex/book-main}
+
+\end{document}

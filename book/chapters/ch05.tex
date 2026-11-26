@@ -1,0 +1,514 @@
+\chapter{第 5 章 范畴：对象、态射、复合、函子}\label{ux7b2c-5-ux7ae0-ux8303ux7574ux5bf9ux8c61ux6001ux5c04ux590dux5408ux51fdux5b50}
+
+前四章处理 Haskell 的语法与函数。本章引入范畴的定义，并说明它刻画的正是第 2 章已经用到的
+复合运算。
+
+\section{5.1 从复合律出发}\label{ux4eceux590dux5408ux5f8bux51faux53d1}
+
+第 2 章的 \passthrough{\lstinline!(.)!} 与 \passthrough{\lstinline!id!} 满足三条等式：
+
+\begin{lstlisting}[language=Haskell]
+id . f        = f            -- 左单位
+f . id        = f            -- 右单位
+(f . g) . h   = f . (g . h)  -- 结合律
+\end{lstlisting}
+
+\passthrough{\lstinline!base!} 中没有代码检查这三条，编译器也不验证。但 \passthrough{\lstinline!map!}、单子变换等大量函数建立在其上。
+若某个自定义的复合不满足结合律，程序不会报错，只会产生难以定位的结果。
+
+因此需要确定：满足这三条等式的结构在数学上叫什么。答案是\textbf{范畴}（category）。
+
+\section{5.2 范畴的定义}\label{ux8303ux7574ux7684ux5b9aux4e49}
+
+\textbf{定义 5.1（范畴）} 一个范畴 \(\mathcal{C}\) 由三部分组成：
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{对象}的汇集 \(\mathrm{Ob}(\mathcal{C})\)；
+\item
+  对每一对对象 \(A, B\)，一个\textbf{态射}的汇集 \(\mathrm{Hom}_{\mathcal{C}}(A, B)\)，
+  其中的元素写作 \(f \colon A \to B\)；
+\item
+  对每个对象 \(A\)，一个\textbf{恒等态射} \(1_A \colon A \to A\)；对每一对可复合的态射
+  \(f \colon A \to B\)、\(g \colon B \to C\)，一个\textbf{复合} \(g \circ f \colon A \to C\)。
+\end{enumerate}
+
+并要求两条公理成立：
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{结合律}：对 \(f \colon A \to B\)、\(g \colon B \to C\)、\(h \colon C \to D\)，
+  \[h \circ (g \circ f) = (h \circ g) \circ f\]
+\item
+  \textbf{单位律}：对 \(f \colon A \to B\)，
+  \[1_B \circ f = f = f \circ 1_A\]
+\end{itemize}
+
+定义不涉及元素、加法或拓扑。它刻画的是一个带类型的箭头系统，以及该系统上一个可结合的复合
+运算。
+
+结构如图：
+
+\begin{lstlisting}
+        f          g
+   A ------> B ------> C
+   |          |          |
+  1_A       1_B        1_C
+   |          |          |
+   v          v          v
+   A          B          C
+
+   g . f : A → C 表示先 f 后 g
+\end{lstlisting}
+
+两条公理的作用：结合律保证 \passthrough{\lstinline!f . g . h!} 的括号位置不影响结果，单位律保证每个对象上存在一个
+不改变结果的中性箭头。缺少任何一条，复合都无法作为基本操作使用。
+
+🦂 数学写作 \(g \circ f\)，读作''先 \(f\) 后 \(g\)``，即 \((g \circ f)(x) = g(f(x))\)。Haskell 的
+\passthrough{\lstinline!g . f!} 与它是同一个东西：\passthrough{\lstinline!(g . f) x = g (f x)!}，不需要换算。
+
+容易读错的地方不在两种记号之间，而在记号与执行顺序之间：复合写在左边的函数后执行。
+\passthrough{\lstinline!f . g . h!} 从右往左读，依次执行 \passthrough{\lstinline!h!}、\passthrough{\lstinline!g!}、\passthrough{\lstinline!f!}，与 \(f \circ g \circ h\) 相同。
+
+\section{5.3 三个例子}\label{ux4e09ux4e2aux4f8bux5b50}
+
+\subsection{例一：Hask}\label{ux4f8bux4e00hask}
+
+对象是 Haskell 的类型，态射是函数，复合是 \passthrough{\lstinline!(.)!}，恒等是 \passthrough{\lstinline!id!}。
+
+\begin{lstlisting}[language=Haskell]
+Int      -- 对象
+not      -- 态射 Bool -> Bool
+(.)      -- 复合
+id       -- 恒等
+\end{lstlisting}
+
+这个范畴通常记作 \textbf{Hask}。它在 \(\bot\) 与 \passthrough{\lstinline!seq!} 介入时并不严格满足公理，第 6 章处理这一
+问题；本章先按满足处理。
+
+\subsection{例二：偏序集}\label{ux4f8bux4e8cux504fux5e8fux96c6}
+
+设 \((P, \leq)\) 为偏序集，构造范畴如下：
+
+\begin{itemize}
+\tightlist
+\item
+  对象：\(P\) 中的元素；
+\item
+  态射：当 \(a \leq b\) 时，\(\mathrm{Hom}(a, b)\) 中恰有一个箭头 \(a \to b\)；否则为空。
+\end{itemize}
+
+恒等箭头对应自反性 \(a \leq a\)；复合对应传递性：由 \(a \leq b\) 与 \(b \leq c\) 得 \(a \leq c\)。
+结合律自动成立，因为同一对对象之间至多一个箭头，两条路径必然给出同一个箭头。
+
+这类范畴的对象多而箭头少：\(n\) 个元素至多 \(n^2\) 个箭头，且每对对象之间至多一个。信息集中在
+箭头是否存在。
+
+\subsection{例三：幺半群}\label{ux4f8bux4e09ux5e7aux534aux7fa4}
+
+设 \((M, \cdot, e)\) 为幺半群，构造范畴如下：
+
+\begin{itemize}
+\tightlist
+\item
+  对象：只有一个，记作 \(\ast\)；
+\item
+  态射：\(M\) 中每个元素 \(m\) 对应一个箭头 \(\ast \to \ast\)；
+\item
+  复合：\(m \circ n = m \cdot n\)；
+\item
+  恒等：\(e\)。
+\end{itemize}
+
+这类范畴的对象只有一个，信息全部集中在箭头的复合方式上。
+
+公理有实际约束力。浮点加法不满足结合律：
+
+\begin{lstlisting}[language=Haskell]
+(0.1 + 0.2) + 0.3            -- 0.6000000000000001
+0.1 + (0.2 + 0.3)            -- 0.6
+\end{lstlisting}
+
+两者不等，因此 \((\mathrm{Double}, +, 0)\) 不是幺半群，也不能按上述方式构成单对象范畴。
+这一差别有实际后果：若复合运算是浮点累加，任何依赖括号重排的变换（例如并行求和）都可能改变
+结果。
+
+\subsection{两类典型例子}\label{ux4e24ux7c7bux5178ux578bux4f8bux5b50}
+
+偏序集与幺半群是范畴的两个极端：前者把结构放在对象之间（箭头是否存在），后者把结构放在箭头
+之间（如何复合）。一般范畴同时具有这两个方向，因此同一概念在这两类范畴中呈现的形态不同。
+
+这一对比有助于理解后文：
+
+\begin{itemize}
+\tightlist
+\item
+  积在偏序集中是最大下界（当它存在时）；在单对象范畴中一般不存在，因为唯一对象要与自身配对，
+  而两个投影要求同一对象上的所有元素都能因式分解。积的一般定义见第 7 章；
+\item
+  单子不是单对象范畴中的东西：它是自函子范畴中的幺半群，即一个自函子加两个自然变换，见第 11
+  章关于自函子范畴的讨论。
+\end{itemize}
+
+四个例子的对照：
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+范畴
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+对象
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+态射
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+复合
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+恒等
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Hask & Haskell 类型 & 函数 & \passthrough{\lstinline!(.)!} & \passthrough{\lstinline!id!} \\
+偏序集 \((P, \leq)\) & \(P\) 的元素 & \(a \le b\) 时恰好一个 & 传递性 & 自反性 \\
+幺半群 \((M, \cdot, e)\) & 唯一对象 \(\ast\) & \(M\) 的元素 & 乘法 & \(e\) \\
+本章的三对象范畴 & \(A, B, C\) & 六个箭头 & 查表 & \(1_A, 1_B, 1_C\) \\
+\end{longtable}
+}
+
+同一个定义覆盖四类不同的结构。范畴论抽象的对象是复合运算本身，而不是被复合的内容。
+
+\subsection{同构}\label{ux540cux6784}
+
+有了复合运算，可以定义同构，它是范畴中''两对象相同''的精确含义。
+
+\textbf{定义 5.2（同构）} 态射 \(f \colon A \to B\) 称为\textbf{同构}，若存在 \(g \colon B \to A\) 使得
+
+\[g \circ f = 1_A, \qquad f \circ g = 1_B\]
+
+此时记 \(A \cong B\)。在 Hask 中，同构即两个函数互为反函数。三个例子：
+
+\begin{itemize}
+\tightlist
+\item
+  \passthrough{\lstinline!swapPair :: (a, b) -> (b, a)!} 自逆，做两次回到原值；
+\item
+  \passthrough{\lstinline!curry!} 与 \passthrough{\lstinline!uncurry!} 互为反函数，即 2.4 节讨论的双射；
+\item
+  \passthrough{\lstinline!newtype Age = Age Int!} 的构造与拆解。
+\end{itemize}
+
+\begin{lstlisting}[language=Haskell]
+-- | 交换二元组：做了两次就回到原样，所以它是自逆的。
+swapPair :: (a, b) -> (b, a)
+swapPair (x, y) = (y, x)
+
+-- | 同构的判据：@swapPair . swapPair = id@。
+swapIsIso :: Bool
+swapIsIso = and
+    [ swapPair (swapPair p) == p
+    | p <- [(1 :: Int, 'a'), (2, 'b'), (3, 'c')]
+    ]
+\end{lstlisting}
+
+\passthrough{\lstinline!swapIsIso!} 在测试中为 \passthrough{\lstinline!True!}。
+
+同构弱于相等：\(A\) 与 \(B\) 不必是同一个对象，只需在范畴内部无法区分。这一点在 Hask 中很具体：
+\passthrough{\lstinline!(a, b)!} 与 \passthrough{\lstinline!(b, a)!} 不是同一个类型，但作为范畴对象同构，因此任何用函数与复合表达的性质必须
+相同。
+
+\section{5.4 用有限范畴验证公理}\label{ux7528ux6709ux9650ux8303ux7574ux9a8cux8bc1ux516cux7406}
+
+下面构造一个最小的非 Hask 范畴，并逐条验证公理。
+
+三个对象 \(A, B, C\)，箭头构成一条链加一条捷径：
+
+\begin{lstlisting}
+        F          G
+   A ------> B ------> C
+    \                  ^
+     \       H         |
+      +----------------+
+\end{lstlisting}
+
+再加三个恒等箭头，共六个。对象定义为枚举：
+
+\begin{lstlisting}[language=Haskell]
+data Obj = A | B | C
+    deriving (Eq, Show, Enum, Bounded)
+\end{lstlisting}
+
+箭头同样是枚举，包含三个恒等与三个非恒等箭头：
+
+\begin{lstlisting}[language=Haskell]
+-- | Six arrows: three identities, three "real" ones.
+data Arrow = IdA | IdB | IdC | F | G | H
+    deriving (Eq, Show, Enum, Bounded)
+
+allArrows :: [Arrow]
+allArrows = [minBound .. maxBound]
+\end{lstlisting}
+
+恒等由对象确定：
+
+\begin{lstlisting}[language=Haskell]
+identity :: Obj -> Arrow
+identity A = IdA
+identity B = IdB
+identity C = IdC
+\end{lstlisting}
+
+复合通过查表实现。注意 \passthrough{\lstinline!compose g f!} 的第一个参数是后执行的态射，即 \(g \circ f\)：
+
+\begin{lstlisting}[language=Haskell]
+-- | @compose g f@ is the arrow "first @f@, then @g@", written @g . f@ in maths.
+-- Returns 'Nothing' when the types do not line up.
+compose :: Arrow -> Arrow -> Maybe Arrow
+compose g f = lookup (g, f) table
+
+table :: [((Arrow, Arrow), Arrow)]
+table =
+    [ ((IdA, IdA), IdA)
+    , ((F,   IdA), F)
+    , ((H,   IdA), H)
+    , ((IdB, IdB), IdB)
+    , ((G,   IdB), G)
+    , ((IdC, IdC), IdC)
+    , ((IdB, F),   F)
+    , ((G,   F),   H)
+    , ((IdC, G),   G)
+    , ((IdC, H),   H)
+    ]
+\end{lstlisting}
+
+表只有十项，因为只有十对态射可以复合。\passthrough{\lstinline!compose G F!} 为 \passthrough{\lstinline!Just H!}，即先 \(F\) 后 \(G\)，正是捷径；
+\passthrough{\lstinline!compose F G!} 为 \passthrough{\lstinline!Nothing!}，因为先在 \(G\) 上到达 \(C\)，而 \(C\) 上没有出发的箭头。这与类型检查
+的作用相同，只是在此手写。
+
+公理可以写成可执行的断言：
+
+\begin{lstlisting}[language=Haskell]
+-- | Associativity, checked on every triple: @(h . g) . f = h . (g . f)@.
+assocHolds :: Bool
+assocHolds = and
+    [ composeM (compose h g) (Just f) == composeM (Just h) (compose g f)
+    | h <- allArrows, g <- allArrows, f <- allArrows
+    ]
+
+-- | @1 . f = f@ and @f . 1 = f@ for every arrow @f@.
+identityHolds :: Bool
+identityHolds = and
+    [ compose (identity (tgt f)) f == Just f
+      && compose f (identity (src f)) == Just f
+    | f <- allArrows
+    ]
+\end{lstlisting}
+
+\passthrough{\lstinline!assocHolds!} 枚举全部 \(6^3 = 216\) 个三元组，\passthrough{\lstinline!identityHolds!} 检查六个箭头的左右单位律。
+两者在测试中均为 \passthrough{\lstinline!True!}。
+
+同一模式可用于幺半群：
+
+\begin{lstlisting}[language=Haskell]
+-- | The monoid @Z/3@ seen as a one-object category: one object, three arrows,
+-- composition is addition modulo 3, the identity is zero.
+data M3 = M0 | M1 | M2
+    deriving (Eq, Show, Enum, Bounded)
+
+madd :: M3 -> M3 -> M3
+madd x y = toEnum ((fromEnum x + fromEnum y) `mod` 3)
+
+assocHoldsM3 :: Bool
+assocHoldsM3 = and
+    [ madd (madd x y) z == madd x (madd y z)
+    | x <- [M0 .. M2], y <- [M0 .. M2], z <- [M0 .. M2]
+    ]
+\end{lstlisting}
+
+\(Z/3\) 在模 3 加法下满足结合律。这原是一个算术事实，现在也是''某个单对象范畴满足结合律''的
+实例。同一段检查代码适用于两个来源不同的范畴，原因是范畴论刻画的是复合运算，而非复合的
+具体内容。
+
+◇ \textbf{恒等箭头唯一。} 若 \(e, e'\) 都是 \(A\) 上的恒等，则 \(e = e \circ e' = e'\)：第一处用
+\(e'\) 的恒等性质，第二处用 \(e\) 的恒等性质。因此定义中说的是''一个恒等''而非''至少一个''。
+
+\section{5.5 函子}\label{ux51fdux5b50}
+
+有了范畴，接下来是范畴之间的比较，对应的概念是\textbf{函子}（functor）。
+
+\textbf{定义 5.3（函子）} 从 \(\mathcal{C}\) 到 \(\mathcal{D}\) 的函子 \(F\) 由两部分组成：
+
+\begin{itemize}
+\tightlist
+\item
+  对象上的映射：\(A \mapsto FA\)；
+\item
+  态射上的映射：\(f \colon A \to B \mapsto Ff \colon FA \to FB\)。
+\end{itemize}
+
+并要求保恒等与保复合：
+
+\[F(1_A) = 1_{FA}, \qquad F(g \circ f) = Fg \circ Ff\]
+
+第二条的方向需要留意：左边是先把复合送过去，右边是送过去之后再复合。两者相等，即函子不破坏
+结构的准确含义。
+
+以上面的三对象范畴为例，将它映入 Hask：三个对象都映到 \passthrough{\lstinline!Int!}，三个箭头映到三个函数：
+
+\begin{lstlisting}[language=Haskell]
+-- | A functor from our three-object category into Hask: all three objects go
+-- to 'Int', and the arrows go to functions.
+interp :: Arrow -> Int -> Int
+interp IdA = id
+interp IdB = id
+interp IdC = id
+interp F   = (+ 1)
+interp G   = (* 2)
+interp H   = (* 2) . (+ 1)
+
+-- | Functor laws: identity is preserved, composition is preserved.
+functorLawHolds :: Bool
+functorLawHolds = and
+    [ identityOK x && compositionOK x g f
+    | g <- allArrows, f <- allArrows, x <- [-2 .. 2 :: Int]
+    ]
+  where
+    identityOK x = and [interp (identity o) x == x | o <- [A, B, C]]
+    compositionOK x g f = case compose g f of
+        Nothing -> True
+        Just h  -> interp h x == interp g (interp f x)
+\end{lstlisting}
+
+由于 \(H = G \circ F\)，\(FH\) 必须等于 \(FG \circ FF\)，即 \passthrough{\lstinline!(*2) . (+1)!}。测试 \passthrough{\lstinline!functorLawHolds!}
+在五个输入上逐条验证：
+
+\begin{lstlisting}[language=Haskell]
+interp H 3                 -- 8
+interp G (interp F 3)      -- 也是 8
+\end{lstlisting}
+
+\subsection{一个反例}\label{ux4e00ux4e2aux53cdux4f8b}
+
+将同一映射改动一处：\(H\) 不映到 \passthrough{\lstinline!(*2) . (+1)!}，而映到 \passthrough{\lstinline!(+3)!}：
+
+\begin{lstlisting}[language=Haskell]
+-- | 一个"看起来像函子"的映射：只把 @H@ 送错了一个函数。
+badInterp :: Arrow -> Int -> Int
+badInterp IdA = id
+badInterp IdB = id
+badInterp IdC = id
+badInterp F   = (+ 1)
+badInterp G   = (* 2)
+badInterp H   = (+ 3)   -- 错的：H = G . F，应该等于 (* 2) . (+ 1)
+
+-- | 同一套检查，作用在假函子上：返回 'False'。
+badFunctorLawHolds :: Bool
+badFunctorLawHolds = and
+    [ case compose g f of
+        Nothing -> True
+        Just h  -> badInterp h x == badInterp g (badInterp f x)
+    | g <- allArrows, f <- allArrows, x <- [-2 .. 2 :: Int]
+    ]
+\end{lstlisting}
+
+它满足表面要求：三个对象都映到 \passthrough{\lstinline!Int!}，三个箭头都是 \passthrough{\lstinline!Int -> Int!}，恒等也保持。但
+\passthrough{\lstinline!badFunctorLawHolds!} 为 \passthrough{\lstinline!False!}：取 \(x = 0\)，\passthrough{\lstinline!badInterp H 0!} 得 \passthrough{\lstinline!3!}，
+\passthrough{\lstinline!badInterp G (badInterp F 0)!} 得 \passthrough{\lstinline!2!}。
+
+函子定律的作用即在于此：区分''像函子''与''是函子''。Haskell 中 \passthrough{\lstinline!fmap!} 的实例写错时（例如把
+\passthrough{\lstinline!fmap f (Just x)!} 写成 \passthrough{\lstinline!Just x!}），编译器不会报错，只有定律能查出。
+
+第 7 章将说明，\passthrough{\lstinline!fmap!} 正是某个函子在态射上的部分。届时 \passthrough{\lstinline!fmap id = id!} 与
+\passthrough{\lstinline!fmap (f . g) = fmap f . fmap g!} 无须单独记忆，它们是定义 5.3 的直接推论。
+
+\section{5.6 常见错误}\label{ux5e38ux89c1ux9519ux8bef}
+
+\subsection{5.6.1 复合方向读反}\label{ux590dux5408ux65b9ux5411ux8bfbux53cd}
+
+\passthrough{\lstinline!f . g!} 表示先 \passthrough{\lstinline!g!} 后 \passthrough{\lstinline!f!}（见 5.2 节）。读反的原因不在 Haskell 的记号，而在书写顺序：
+复合写在左边的函数后执行，与 \passthrough{\lstinline!f(x)!} 中''函数在左、先作用''的习惯相反。
+
+可靠的检查方式是看类型：\passthrough{\lstinline!f . g!} 中 \passthrough{\lstinline!g!} 的输出必须作为 \passthrough{\lstinline!f!} 的输入，因此 \passthrough{\lstinline!g :: a -> b!}、
+\passthrough{\lstinline!f :: b -> c!}。类型签名是唯一可靠的方向依据。
+
+\subsection{5.6.2 把类型类当作对象}\label{ux628aux7c7bux578bux7c7bux5f53ux4f5cux5bf9ux8c61}
+
+\passthrough{\lstinline!Eq!}、\passthrough{\lstinline!Show!}、\passthrough{\lstinline!Monad!} 是类型类，不是范畴的对象。在 Hask 中：
+
+\begin{itemize}
+\tightlist
+\item
+  对象是类型，如 \passthrough{\lstinline!Int!}、\passthrough{\lstinline![Bool]!}、\passthrough{\lstinline!Maybe Char!}；
+\item
+  态射是函数，如 \passthrough{\lstinline!Int -> Bool!}；
+\item
+  类型类是类型上的谓词，它筛选出一批类型，但不是范畴论意义上的对象。
+\end{itemize}
+
+一个常见误解是把 \passthrough{\lstinline!Monad!} 当作某种范畴。单子是 Hask 上的一个\textbf{自函子}（endofunctor）加两个
+自然变换，不是对象的集合。
+
+\subsection{5.6.3 以为恒等必须显式写出}\label{ux4ee5ux4e3aux6052ux7b49ux5fc5ux987bux663eux5f0fux5199ux51fa}
+
+\passthrough{\lstinline!id!} 常常不出现，但恒等箭头始终存在，它由对象确定。\passthrough{\lstinline!identity :: Obj -> Arrow!} 表达的就是
+这一点：给定对象，恒等随即确定。
+
+这也解释了 \passthrough{\lstinline!fmap id = id!} 为何是定律：函子必须把恒等送到恒等，这是定义的组成部分。
+
+\subsection{5.6.4 Hask 并不严格满足公理}\label{hask-ux5e76ux4e0dux4e25ux683cux6ee1ux8db3ux516cux7406}
+
+\passthrough{\lstinline!undefined :: Int!} 与 \passthrough{\lstinline!seq!} 会使部分等式失效：\passthrough{\lstinline!id . undefined!} 与 \passthrough{\lstinline!undefined!} 在 \passthrough{\lstinline!seq!} 下可
+区分。严格地说，Hask 不满足单位律；结合律仍然成立，因为复合的两侧都化简为同一个 λ（见 6.3.2）。
+
+本书在使用''Hask 是范畴''时，指的是忽略 \(\bot\) 的近似意义。第 6 章专门讨论这一问题。
+
+\section{5.7 练习}\label{ux7ec3ux4e60}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  增加对象 \(D\) 与箭头 \(C \to D\)，补全 \passthrough{\lstinline!table!}，使 \passthrough{\lstinline!assocHolds!} 仍为 \passthrough{\lstinline!True!}。
+\item
+  改为菱形结构：\(A \to B\)、\(A \to C\)、\(B \to D\)、\(C \to D\)。此时 \(A\) 到 \(D\) 有两条路径，
+  因此不构成偏序范畴（同一对对象之间出现两个箭头）。用代码表示该结构，并判断结合律是否
+  仍成立。
+\item
+  补全恒等唯一性的证明，标出每一步所用的公理。
+\item
+  证明：若 \(F\) 是函子、\(f\) 是同构，则 \(Ff\) 也是同构。
+\item
+  用 \passthrough{\lstinline!Control.Category!} 的 \passthrough{\lstinline!Category!} 类构造实例：态射取 \passthrough{\lstinline!a -> Maybe b!}，即 Kleisli 箭头，
+  \passthrough{\lstinline!id!} 取 \passthrough{\lstinline!return!}，复合取 \passthrough{\lstinline!(>=>)!}，并验证三条定律。这一构造即第 9 章的 Kleisli 范畴。
+\end{enumerate}
+
+\section*{参考文献}
+\addcontentsline{toc}{section}{参考文献}\label{ux53c2ux8003ux6587ux732e}
+
+本章的写法参考了以下著作，标注的是写作时实际核对的位置：
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Awodey, Steve.} \emph{Category Theory}, 2nd ed.~Oxford University Press, 2006.
+  §1.3（范畴的定义）、§1.4（例子：偏序集、幺半群等）、§1.5（同构）。本章定义 5.1--5.3 的
+  表述基本沿用这几节。
+\item
+  \textbf{Mac Lane, Saunders.} \emph{Categories for the Working Mathematician}, 2nd ed., Graduate Texts
+  in Mathematics 5, Springer, 1998. Chapter I。本章未采用其记号，但''范畴 → 函子 → 自然变换''
+  的排列顺序与之一致。
+\item
+  \textbf{\passthrough{\lstinline!Control.Category!}}（\passthrough{\lstinline!base!} 包）。\passthrough{\lstinline!id!} 与 \passthrough{\lstinline!(.)!} 的类，5.1 节的三条等式即其 API。
+\end{itemize}
+
+后续阅读顺序：Awodey §2（抽象结构：积、余积、初始与终止对象），再读 §6（指数对象、笛卡尔
+闭范畴），分别对应本书第 7、8 章。

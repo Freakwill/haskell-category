@@ -12,10 +12,25 @@ build-type:         Simple
 library
     hs-source-dirs:   src
     exposed-modules:  Ch01.Basics
+                      Ch01.Tour
+                      Ch02.Functions
+                      Ch03.ADT
+                      Ch04.TypeClass
+                      Ch05.Category
+                      Ch06.Hask
+                      Ch07.Functor
+                      Ch08.Applicative
     build-depends:    base        >=4.16 && <5
                     , containers  >=0.6
                     , text        >=2.0
                     , mtl         >=2.2
+    default-language: GHC2021
+    ghc-options:      -Wall
+
+executable hello
+    hs-source-dirs:   src
+    main-is:          Ch01/Hello.hs
+    build-depends:    base
     default-language: GHC2021
     ghc-options:      -Wall
 

@@ -1,0 +1,67 @@
+%!TEX program = lualatex
+% 共享前导：latex/book.tex（正文）与 sample/sample.tex（样稿）共用。
+
+\usepackage{amsmath,amssymb,amsthm,bm}
+\usepackage{etoolbox}
+\usepackage[left=3.2cm, right=3cm, top=3cm, bottom=3cm]{geometry}
+\usepackage{booktabs,longtable,array}
+\usepackage{calc}
+\newcounter{none} % pandoc longtable without caption
+\usepackage{graphicx,float}
+\usepackage{enumerate,enumitem}
+\usepackage[font=small]{caption}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{matrix,arrows,positioning,fit,calc}
+\usepackage{listings}
+\usepackage{fancyvrb}
+\usepackage{newunicodechar}
+\usepackage[unicode=true,pdfencoding=auto,psdextra,
+  colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\makeatletter
+\g@addto@macro{\UrlBreaks}{\UrlOrds}
+\def\input@path{{../latex/}{../latex/chapters/}{chapters/}}
+\makeatother
+
+\setlength{\parindent}{2em}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\newcommand{\passthrough}[1]{#1}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  columns=flexible,
+  keepspaces=true,
+  showstringspaces=false,
+  aboveskip=6pt,
+  belowskip=6pt,
+  frame=single,
+  framesep=4pt,
+  rulecolor=\color{black!30},
+  keywordstyle=\color{blue!45!black}\bfseries,
+  commentstyle=\color{black!45}\itshape,
+  stringstyle=\color{red!55!black},
+  literate={→}{{$\to$}}1 {←}{{$\leftarrow$}}1 {⇒}{{$\Rightarrow$}}1
+           {≠}{{$\neq$}}1 {≥}{{$\geq$}}1 {≤}{{$\leq$}}1 {∈}{{$\in$}}1,
+}
+
+% Markers that have no glyph in the CJK fonts.
+% 🦂 ◇ ✗ ⚠ render as color emoji via the emoji package (LuaLaTeX; Apple Color
+% Emoji auto-detected).
+\usepackage{emoji}
+\newunicodechar{🦂}{\emoji{scorpion}}
+\newunicodechar{◇}{\emoji{large-blue-diamond}}
+\newunicodechar{✗}{\emoji{cross-mark}}
+\newunicodechar{⚠}{\emoji{warning}}
+\newunicodechar{→}{\textrightarrow}
+\newunicodechar{←}{\textleftarrow}
+\newunicodechar{⇒}{\ensuremath{\Rightarrow}}
+\newunicodechar{≠}{\ensuremath{\neq}}
+\newunicodechar{≥}{\ensuremath{\geq}}
+\newunicodechar{≤}{\ensuremath{\leq}}
+\newunicodechar{∈}{\ensuremath{\in}}
+\newunicodechar{∅}{\ensuremath{\varnothing}}
+\newunicodechar{μ}{\ensuremath{\mu}}
+\newunicodechar{λ}{\ensuremath{\lambda}}

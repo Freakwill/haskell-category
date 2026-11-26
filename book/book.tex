@@ -1,0 +1,27 @@
+%!TEX program = lualatex
+% 正文主文件。样稿见 ../sample/sample.tex（与正文的唯一区别是样稿标记页）。
+\documentclass[11pt,a4paper,fontset=fandol]{ctexbook}
+
+\input{book-preamble}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{3.2cm}
+  {\Large\bfseries 边学 Haskell 边学范畴论\par}
+  \vspace{0.4cm}
+  {\large\bfseries 从可运行的代码反推数学\par}
+  \vspace{1.2cm}
+  {\large 宋丛威\par}
+\end{titlepage}
+
+\frontmatter
+\input{front}
+\tableofcontents
+
+\mainmatter
+\setcounter{secnumdepth}{3}
+\input{book-main}
+
+\end{document}
