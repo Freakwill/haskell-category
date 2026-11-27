@@ -11,7 +11,7 @@
 
 # 第二部分 范畴论
 
-- [第 5 章 范畴：对象、态射、复合、函子](ch05-category.md)
+- [第 5 章 范畴论基础](ch05-category.md)
 - [第 6 章 Hask：把类型系统当范畴看](ch06-hask.md)
 - [第 7 章 函子与自然变换：fmap 与自然性](ch07-functor.md)
 - [第 8 章 应用函子](ch08-applicative.md)

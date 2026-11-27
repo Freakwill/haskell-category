@@ -71,7 +71,7 @@
       {"n": 2, "file": "ch02-functions.md", "title": "函数、递归、高阶函数、Curry 化", "words": 13000, "status": "试写稿", "verification": "L2", "hook": "三个 for 循环 → map/filter/foldr → Curry 化 → 函数空间同构", "forward_refs": ["8（curry 与笛卡尔闭范畴）"]},
       {"n": 3, "file": "ch03-data.md", "title": "代数数据类型与模式匹配", "words": 13000, "status": "试写稿", "verification": "L2", "hook": "和/积/单位/空 + HoTT：类型即空间、恒等类型、集合层", "forward_refs": ["5（积与余积）", "7（初始性）"]},
       {"n": 4, "file": "ch04-typeclass.md", "title": "类型类：ad-hoc 多态", "words": 14000, "status": "试写稿", "verification": "L2", "hook": "类型类不是接口；HoTT 视角下约束是类型上的结构，定律是义务；deriving 只派生结构", "forward_refs": ["7（自然变换与类型类定律）"]},
-      {"n": 5, "file": "ch05-category.md", "title": "范畴：对象、态射、复合、函子", "words": 15000, "status": "试写稿", "verification": "L2", "hook": "从 (.) 与 id 的三条定律出发；有限范畴手算验证公理；假函子反例", "forward_refs": ["7"]},
+      {"n": 5, "file": "ch05-category.md", "title": "范畴论基础", "words": 15000, "status": "试写稿", "verification": "L2", "hook": "从 (.) 与 id 的三条定律出发；有限范畴手算验证公理；假函子反例", "forward_refs": ["7"]},
       {"n": 6, "file": "ch06-hask.md", "title": "Hask：把类型系统当范畴看", "words": 14000, "status": "试写稿", "verification": "L2", "hook": "对象=类型、态射=函数；⊥ 与 seq 使单位律失效；全函数/CPO/义务三条出路", "forward_refs": ["9（Kleisli）"]},
       {"n": 7, "file": "ch07-functor.md", "title": "函子与自然变换：fmap 与自然性", "words": 18000, "status": "试写稿", "verification": "L2", "hook": "先顺盒子比喻，再让它失效；自然性方块用 TikZ 手画", "forward_refs": ["8", "9"]},
       {"n": 8, "file": "ch08-applicative.md", "title": "应用函子", "words": 28000, "status": "试写稿", "verification": "L2", "hook": "Applicative ≈ lax monoidal functor，本书的学术超车点；六个实例各配一个「为什么长这样」", "forward_refs": ["9"]},

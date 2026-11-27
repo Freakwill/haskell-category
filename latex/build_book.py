@@ -149,9 +149,9 @@ TIKZ_CHAIN = """```{=latex}
   \\node (A) at (0,0) {$A$};
   \\node (B) at (3,0) {$B$};
   \\node (C) at (6,0) {$C$};
-  \\draw[->] (A) -- node[above] {$F$} (B);
-  \\draw[->] (B) -- node[above] {$G$} (C);
-  \\draw[->] (A) to [bend right=35] node[below] {$H$} (C);
+  \\draw[->] (A) -- node[above] {$f$} (B);
+  \\draw[->] (B) -- node[above] {$g$} (C);
+  \\draw[->] (A) to [bend right=35] node[below] {$h$} (C);
 \\end{tikzpicture}
 \\end{center}
 ```"""
