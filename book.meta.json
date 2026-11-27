@@ -75,7 +75,7 @@
       {"n": 6, "file": "ch06-hask.md", "title": "Hask：把类型系统当范畴看", "words": 14000, "status": "试写稿", "verification": "L2", "hook": "对象=类型、态射=函数；⊥ 与 seq 使单位律失效；全函数/CPO/义务三条出路", "forward_refs": ["9（Kleisli）"]},
       {"n": 7, "file": "ch07-functor.md", "title": "函子与自然变换：fmap 与自然性", "words": 18000, "status": "试写稿", "verification": "L2", "hook": "先顺盒子比喻，再让它失效；自然性方块用 TikZ 手画", "forward_refs": ["8", "9"]},
       {"n": 8, "file": "ch08-applicative.md", "title": "应用函子", "words": 28000, "status": "试写稿", "verification": "L2", "hook": "Applicative ≈ lax monoidal functor，本书的学术超车点；六个实例各配一个「为什么长这样」", "forward_refs": ["9"]},
-      {"n": 9, "file": "ch09-monad.md", "title": "单子：join / μ、Kleisli 范畴与实例", "words": 40000, "status": "骨架", "verification": "L2", "hook": "三种等价视角写成可读的证明；样章之一，半群视角须请数学同行复核；IO 的 RealWorld 只当直觉", "forward_refs": ["10"]},
+      {"n": 9, "file": "ch09-monad.md", "title": "单子", "words": 40000, "status": "骨架", "verification": "L2", "hook": "三种等价视角写成可读的证明；样章之一，半群视角须请数学同行复核；IO 的 RealWorld 只当直觉", "forward_refs": ["10"]},
       {"n": 10, "file": "ch10-transformer.md", "title": "Monad Transformer 与 mtl", "words": 14000, "status": "空", "verification": "L2", "hook": "底稿完全没有；工程读者最需要", "forward_refs": ["15"]},
       {"n": 11, "file": "ch11-package.md", "title": "模块、包、cabal、测试与文档", "words": 12000, "status": "空", "verification": "L2", "hook": "以本书自己的 code/ 工程为案例", "forward_refs": []},
       {"n": 12, "file": "ch12-scientific.md", "title": "科学计算：数值、符号与机器学习", "words": 16000, "status": "空", "verification": "L2", "hook": "三条线：数值计算（数组操作）、符号计算、机器学习；定理自动证明独立成章（第 17 章）", "forward_refs": ["17"]},

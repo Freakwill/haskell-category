@@ -80,11 +80,6 @@ Set 是数学中最有代表性的范畴，也是理解范畴定义最方便的�
 规模问题：全体集合的汇集不是集合，而是\textbf{真类（proper class）}，因此 Set 的“对象全体”
 比任何集合都大。本书不在规模问题上停留，只在 6.1 节与 Hask 对照时用到这一区别。
 
-Set 的另一重地位：现代数学的各分支以集合论为共同基础，研究对象先被实现为集合、再带上
-结构。由此得到的大部分常见范畴都是 Set 的子范畴（对象带额外结构，态射是保持该结构的
-函数）：群范畴、环范畴、拓扑范畴、向量空间范畴等等。这些范畴的态射满足额外条件（保持
-运算、保持连续），复合与恒等仍继承 Set；5.1.2 节的子范畴定义给出的正是这一情形。
-
 \subsection{基本概念}\label{ux57faux672cux6982ux5ff5}
 
 \textbf{定义 5.2（子范畴）} 范畴 \(\mathcal{D}\) 是范畴 \(\mathcal{C}\) 的\textbf{子范畴}，若 \(\mathcal{D}\) 的对象是
@@ -102,7 +97,8 @@ Set 的另一重地位：现代数学的各分支以集合论为共同基础，�
   \textbf{终对象}（terminal object）是对象 \(T\)，对每个对象 \(A\) 恰有一个态射 \(A \to T\)。
 \end{itemize}
 
-始与终互为对偶：把箭头方向反过来，始对象即终对象。各范畴中的具体例子见 5.2 节。
+始与终互为对偶：把箭头方向反过来，始对象即终对象。Set 中始对象是空集（对任意集合 \(A\)，
+空函数是唯一的 \(\varnothing \to A\)），终对象是单点集；其他范畴的例子见各实例。
 
 \textbf{定义 5.4（单态射与满态射）} 态射 \(f \colon A \to B\) 称为
 
@@ -142,7 +138,8 @@ id       -- 恒等
 \end{lstlisting}
 
 这个范畴通常记作 \textbf{Hask}。它在 \(\bot\) 与 \passthrough{\lstinline!seq!} 介入时并不严格满足公理，第 6 章处理这一
-问题；本章先按满足处理。
+问题；本章先按满足处理。Hask 中 \passthrough{\lstinline!Void!} 是始对象（\passthrough{\lstinline!absurd :: Void -> a!}），\passthrough{\lstinline!()!} 是终对象
+（\passthrough{\lstinline!const () :: a -> ()!}）。
 
 在 Hask 中，同构即两个函数互为反函数。三个例子：
 
@@ -187,7 +184,7 @@ swapIsIso = and
 结合律自动成立，因为同一对对象之间至多一个箭头，两条路径必然给出同一个箭头。
 
 这类范畴的对象多而箭头少：\(n\) 个元素至多 \(n + \binom{n}{2}\) 个箭头，且每对对象之间至多一个。
-信息集中在箭头是否存在。
+信息集中在箭头是否存在。偏序中始对象是最小元、终对象是最大元（当存在时）。
 
 \subsection{幺半群}\label{ux5e7aux534aux7fa4}
 
@@ -205,7 +202,8 @@ swapIsIso = and
   恒等：\(e\)。
 \end{itemize}
 
-这类范畴的对象只有一个，信息全部集中在箭头的复合方式上。
+这类范畴的对象只有一个，信息全部集中在箭头的复合方式上。单对象范畴中始对象与终对象都是
+唯一对象 \(\ast\)。
 
 公理有实际约束力。浮点加法不满足结合律：
 
@@ -217,13 +215,6 @@ swapIsIso = and
 两者不等，因此 \((\mathrm{Double}, +, 0)\) 不是幺半群，也不能按上述方式构成单对象范畴。
 这一差别有实际后果：若复合运算是浮点累加，任何依赖括号重排的变换（例如并行求和）都可能改变
 结果。
-
-\subsection{始对象与终对象}\label{ux59cbux5bf9ux8c61ux4e0eux7ec8ux5bf9ux8c61}
-
-用 5.1.2 节的定义对照四个实例：Set 中始对象是空集（对任意集合 \(A\)，空函数是唯一的
-\(\varnothing \to A\)），终对象是单点集；偏序中始对象是最小元、终对象是最大元（当存在
-时）；Hask 中 \passthrough{\lstinline!Void!} 是始对象（\passthrough{\lstinline!absurd :: Void -> a!}），\passthrough{\lstinline!()!} 是终对象
-（\passthrough{\lstinline!const () :: a -> ()!}）；单对象范畴（幺半群）中始对象与终对象都是唯一对象 \(\ast\)。
 
 \subsection{两类极端与 Set}\label{ux4e24ux7c7bux6781ux7aefux4e0e-set}
 
@@ -267,6 +258,14 @@ Set & 集合 & 函数 & 函数复合 & 恒等函数 \\
 }
 
 同一个定义覆盖五类不同的结构。范畴论抽象出的是复合运算本身，而不是被复合的内容。
+
+\subsection{Set 常见子范畴}\label{set-ux5e38ux89c1ux5b50ux8303ux7574}
+
+Set 的子范畴几乎覆盖了现代数学各分支的研究对象。群（group）范畴的对象是群，态射是保持
+乘法的群同态；环（ring）范畴、向量空间（vector space）范畴同理，态射分别是环同态与线性
+映射。拓扑空间（topological space）范畴的对象是拓扑空间，态射是连续映射。这些范畴的
+共同点：对象是带结构的集合，态射是保持结构的函数，复合与恒等继承 Set------这正是 5.1.2 节
+子范畴的定义。
 
 \section{用有限范畴验证公理}\label{ux7528ux6709ux9650ux8303ux7574ux9a8cux8bc1ux516cux7406}
 

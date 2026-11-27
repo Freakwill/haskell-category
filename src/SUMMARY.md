@@ -15,7 +15,7 @@
 - [第 6 章 Hask：把类型系统当范畴看](ch06-hask.md)
 - [第 7 章 函子与自然变换：fmap 与自然性](ch07-functor.md)
 - [第 8 章 应用函子](ch08-applicative.md)
-- [第 9 章 单子：join / μ、Kleisli 范畴与实例](ch09-monad.md)
+- [第 9 章 单子](ch09-monad.md)
 - [第 10 章 Monad Transformer 与 mtl](ch10-transformer.md)
 
 # 第三部分 工程
