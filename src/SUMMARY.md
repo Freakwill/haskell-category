@@ -21,8 +21,8 @@
 # 第三部分 工程
 
 - [第 11 章 模块、包、cabal、测试与文档](ch11-package.md)
-- [第 12 章 科学计算：数值、符号与机器学习](ch12-scientific.md)
-- [第 13 章 并发与并行：async、STM、par](ch13-concurrency.md)
+- [第 12 章 并发与并行：async、STM、par](ch12-concurrency.md)
+- [第 13 章 科学计算](ch13-scientific.md)
 
 # 第四部分 实战
 

@@ -68,6 +68,13 @@ $$
 应用函数；复合律是 `fmap` 复合律的 `<*>` 版本；交换律说先提供函数还是先提供参数不影响结果。
 四条与第 7 章的两条 `fmap` 定律合起来，构成应用函子的完整义务。
 
+**定理 8.1（应用函子得名的等式）** 对任意 $x \colon T a$ 与 $f \colon a \to b$，
+
+$$\eta\,f \circledast x = T(f)(x)$$
+
+"应用函子"的名字来自这个等式：把函数装进语境再应用，等于把函数直接应用到值上，
+结果自动在语境里。这正是 `fmap f x = pure f <*> x` 的数学形式。
+
 **例 8.2（在 Maybe 上核对四条定律）** 把四条写成一组布尔断言：
 
 ```haskell
@@ -92,45 +99,47 @@ $$
 `v <*> w` 再加一次共加 2，计数不同。同态律同样失败。交换律恰好成立，因为它两边各经过一次
 `<*>`，多加的 1 相同。GHC 对这段代码不报任何错；四条定律要靠证明或测试。
 
-## 8.3 数学：笛卡尔闭范畴与 lax monoidal 函子
+## 8.3 数学：Cartesian 闭范畴与 lax monoidal 函子
 
 `pure` 与 `<*>` 在范畴论里有名字。这一节补全 2.4 节留下的定义。
 
-### 8.3.1 笛卡尔闭范畴
+### 8.3.1 Cartesian 闭范畴
 
-**定义 8.3（笛卡尔闭范畴）** 范畴 $\mathcal{C}$ 是**笛卡尔闭范畴**（cartesian closed
-category，CCC），若它有终对象 $1$、任意两个对象的二元积 $A \times B$、任意两个对象的指数
-$C^B$，并且存在一个自然的双射
+**定义 8.3（Cartesian 闭范畴）** 范畴 $\mathcal{C}$ 是**Cartesian 闭范畴**（cartesian closed
+category，CCC），若它有终对象 $1$、任意两个对象的二元积 $a \times b$、任意两个对象的指数
+$c^b$，并且存在一个自然的双射
 
 $$
-\mathrm{Hom}(A \times B,\; C) \cong \mathrm{Hom}(A,\; C^B),
+\mathrm{Hom}(a \times b,\; c) \cong \mathrm{Hom}(a,\; c^b),
 $$
 
-其中 $A, B, C$ 为任意对象。
+其中 $a, b, c$ 为任意对象。
 
 终对象、二元积、指数三者缺一不可：双射的两边分别用到积与指数。2.4 节只给了函数空间的同构
-版本；完整定义还要终对象 $1$ 与积的泛性质。Set 是 CCC，Hask 在忽略 $\bot$ 的意义下也是。
+版本；完整定义还要终对象 $1$ 与积的泛性质。**Set** 是 CCC，**Hask** 在忽略 $\bot$ 的意义下也是。
 
-对 Hask，双射的两个方向正是 Curry 化与反 Curry 化。`(a, b) -> c` 与 `a -> (b -> c)` 的元素
+对 **Hask**，双射的两个方向正是 Curry 化与反 Curry 化。`(a, b) -> c` 与 `a -> (b -> c)` 的元素
 一一对应，对应由 `curry` 与 `uncurry` 实现。`pure` 的威力正来自这里：二元函数先 Curry 化成
 一元函数，`fmap` 就能把它装进语境。
 
 ### 8.3.2 lax monoidal 函子
 
 **定义 8.4（lax monoidal 函子）** 设 $\mathcal{C}$、$\mathcal{D}$ 是幺半群范畴。函子
-$F\colon\mathcal{C}\to\mathcal{D}$ 带上一个态射 $\eta\colon 1_{\mathcal{D}} \to F(1_\mathcal{C})$
-与一族态射 $\mu_{A,B}\colon FA \otimes FB \to F(A \otimes B)$，且满足结合性与单位的一致性
+$T\colon\mathcal{C}\to\mathcal{D}$ 带上一个态射 $\eta\colon 1_{\mathcal{D}} \to T(1_\mathcal{C})$
+与一族态射 $\mu_{a,b}\colon Ta \otimes Tb \to T(a \otimes b)$，且满足结合性与单位的一致性
 条件，称为 lax monoidal 函子。
 
-Hask 的幺半群结构取 $1 = ()$、$\otimes = \times$。**应用函子与 lax monoidal 函子是同一个
-东西**，对应如下：
+**Hask** 的幺半群结构取 $1 = ()$、$\otimes = \times$。
 
-| lax monoidal 分量 | Hask 版本 | Haskell 写法 |
+**定理 8.2（应用函子等价于 lax monoidal 函子）** 满足四条定律的应用函子与
+**Hask** 上的 lax monoidal 函子一一对应，对应如下表：
+
+| lax monoidal 分量 | **Hask** 版本 | Haskell 写法 |
 |---|---|---|
-| $\eta\colon 1 \to F1$ | $() \to f\;()$ | `pure ()` |
-| 由 $\eta$ 导出的 $A \to FA$ | 任意值装进语境 | `pure` |
-| $\mu_{A,B}\colon FA \times FB \to F(A \times B)$ | 一对语境值合成语境积 | `(,) <$> fa <*> fb` |
-| 由 $\mu$ 与求值导出的 $F(A \to B) \times FA \to FB$ | 语境里的函数应用到语境值 | `<*>` |
+| $\eta\colon 1 \to T1$ | $() \to f\;()$ | `pure ()` |
+| 由 $\eta$ 导出的 $a \to Ta$ | 任意值装进语境 | `pure` |
+| $\mu_{a,b}\colon Ta \times Tb \to T(a \times b)$ | 一对语境值合成语境积 | `(,) <$> fa <*> fb` |
+| 由 $\mu$ 与求值导出的 $T(a \to b) \times Ta \to Tb$ | 语境里的函数应用到语境值 | `<*>` |
 
 四条定律与 lax monoidal 的一致性条件一一对应：恒等律与同态律对应单位一致性，复合律与交换律
 对应结合性与自然性。lax 的意思是 $\mu$ 不是同构：`Maybe a` 与 `Maybe b` 的积只有一部分组合
@@ -152,7 +161,7 @@ Hask 的幺半群结构取 $1 = ()$、$\otimes = \times$。**应用函子与 lax
 Maybe 的语义是"失败即停"：任何一个环节没有值，后面全部免算。要"失败也继续、把所有错误收
 齐"的语义，见 8.4.6 的 Validation。
 
-### 8.4.2 List：笛卡尔积
+### 8.4.2 List：Cartesian 积
 
 #### 8.4.2.1 Python 实现
 
@@ -170,14 +179,14 @@ Maybe 的语义是"失败即停"：任何一个环节没有值，后面全部免
 [(1, 'a'), (2, 'b'), (3, None)]
 ```
 
-`product` 给出笛卡尔积，长短互不影响；`zip` 截断到较短者；`zip_longest` 不截断而是补
+`product` 给出Cartesian 积，长短互不影响；`zip` 截断到较短者；`zip_longest` 不截断而是补
 `None`。三种语义都合法，选哪个看业务：生成所有组合用 `product`，对齐两个序列用 `zip`。
 Python 的限制在于，三种语义散在三个函数里，没有一个统一的接口把它们换成 `Maybe`、`Reader`
 等其他语境。
 
 #### 8.4.2.2 Haskell 实现
 
-**例 8.5（列表实例）** Haskell 的列表实例选的是笛卡尔积语义：
+**例 8.5（列表实例）** Haskell 的列表实例选的是Cartesian 积语义：
 
 ```haskell
 {{#include ../code/src/Ch08/Applicative.hs:list-instance}}
@@ -189,7 +198,7 @@ Python 的限制在于，三种语义散在三个函数里，没有一个统一�
 
 | 维度 | Python | Haskell |
 |---|---|---|
-| 笛卡尔积 | `itertools.product` | 列表的 `<*>` |
+| Cartesian 积 | `itertools.product` | 列表的 `<*>` |
 | 按位配对（截断） | `zip` | `ZipList` 的 `<*>` |
 | 按位配对（补缺） | `zip_longest` | 无对应（需自定义） |
 | 统一接口 | 无 | `Applicative` |
@@ -296,7 +305,7 @@ src/Ch08/Applicative.hs:51:27: error: [GHC-39999]
 
 函数没有 `Eq`（6.3.3 节）。定律检查要选可比较的值类型，例如 `Just 7 :: Maybe Int`。
 
-**以为列表的 `<*>` 是 zip。** 是笛卡尔积；zip 语义在 `ZipList`。混淆的后果是组合数量对
+**以为列表的 `<*>` 是 zip。** 是Cartesian 积；zip 语义在 `ZipList`。混淆的后果是组合数量对
 不上：`(,) <$> [1..3] <*> [1..3]` 得 9 个元素，不是 3 个。
 
 ## 8.6 练习

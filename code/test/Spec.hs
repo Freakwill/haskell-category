@@ -1,7 +1,9 @@
 module Main (main) where
 
+import           Control.Exception (evaluate)
 import qualified Data.Map.Strict     as Map
 import           Data.Monoid         (Sum (..))
+import qualified Data.Sequence       as Seq
 import qualified Data.Text           as T
 import           Ch01.Basics
 import           Ch01.Tour           (Expr (..), demoExpr, eval, firstFive, pretty, squaresOf)
@@ -12,6 +14,14 @@ import           Ch05.Category
 import           Ch06.Hask          (lawsHoldOn, etaCounterexample)
 import qualified Ch07.Functor       as F
 import qualified Ch08.Applicative   as A
+import qualified Ch09.Core          as C9
+import qualified Ch09.Instances     as I9
+import qualified Ch09.Motivation    as M9
+import qualified Ch09.STArrays      as ST9
+import qualified Ch13.Autodiff     as D13
+import qualified Ch13.Numeric       as N13
+import qualified Ch13.Regression    as R13
+import qualified Ch13.Symbolic      as S13
 import           Test.Hspec
 
 main :: IO ()
@@ -271,3 +281,122 @@ main = hspec $ do
 
     it "总词数等于各词频之和" $
       totalWords (countWords (map T.pack ["a", "b", "a"])) `shouldBe` 3
+
+  describe "Ch09.Motivation" $ do
+    it "Maybe 管道：手写嵌套 case 与 >>= 版本一致" $
+      M9.pipelineManual M9.personTable "ann" `shouldBe`
+        M9.pipelineBind M9.personTable "ann"
+
+    it "Maybe 管道：查不到人名时两条路径都失败" $
+      M9.pipelineManual M9.personTable "x" `shouldBe` Nothing
+
+    it "Maybe 管道：年龄超限时两条路径都失败" $
+      M9.pipelineBind M9.personTable "dee" `shouldBe` Nothing
+
+    it "列表管道：手工 concatMap 与 >>= 版本一致" $
+      M9.chooseManual [1 .. 9] `shouldBe` M9.chooseBind [1 .. 9]
+
+    it "列表管道：和为 10 的数对全部列出" $
+      M9.chooseBind [3, 7, 4] `shouldBe` [(3, 7), (7, 3)]
+
+    it "计数器：手写线程与预期一致" $
+      M9.threadManual 0 `shouldBe` ("vv", 2)
+
+  describe "Ch09.Core" $ do
+    it "join 与 >>= 互相定义，在 Maybe 与列表上一致" $
+      C9.interdefinitionsHold `shouldBe` True
+
+    it "有限环境 Two 上穷举三条单子定律成立" $
+      C9.twoLawsHold `shouldBe` True
+
+    it "Maybe 与列表在具体赋值上满足三条定律" $
+      (C9.monadLawsOnMaybe && C9.monadLawsOnList) `shouldBe` True
+
+    it "BadM 违反左单位律与结合律" $ do
+      C9.badLeftIdentityBroken `shouldBe` True
+      C9.badAssociativityBroken `shouldBe` True
+
+  describe "Ch09.Instances" $ do
+    it "WriterM 按顺序累积日志" $
+      I9.runWriterM I9.writerLog `shouldBe` (7, ["add 3", "add 4", "sum"])
+
+    it "ReaderM 共享环境" $
+      I9.runReaderM I9.readerEnv 2 `shouldBe` 9
+
+    it "StateM 串行传递状态" $
+      I9.runStateM I9.stateCount 0 `shouldBe` ("tick:1", 2)
+
+    it "ExceptM 短路到第一个错误" $
+      I9.runExceptM I9.exceptErr `shouldBe` Left "boom"
+
+  describe "Ch09.STArrays" $ do
+    it "ST 就地反转：与列表 reverse 一致" $
+      ST9.inPlaceReverse [1 .. 6] `shouldBe` reverse [1 .. 6]
+
+    it "ST 斐波那契表：与递归版一致（含 n = 0, 1）" $
+      map ST9.fibArray [0 .. 12] `shouldBe`
+        [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144]
+
+    it "ST 斐波那契大数：第 100 项为 354224848179261915075" $
+      ST9.fibArray 100 `shouldBe` 354224848179261915075
+
+  describe "Ch13.Numeric" $ do
+    it "点积：Seq 上的 (1,2,3)·(4,5,6) = 32" $
+      N13.dot (Seq.fromList [1, 2, 3]) (Seq.fromList [4, 5, 6]) `shouldBe` 32
+
+    it "点积：长度不符时报错而不是给错值" $
+      evaluate (N13.dot (Seq.fromList [1, 2, 3]) (Seq.fromList [1, 2]))
+        `shouldThrow` anyErrorCall
+
+    it "dotTrunc 静默截断：只算了前两项" $
+      N13.dotTrunc (Seq.fromList [1, 2, 3]) (Seq.fromList [1, 2]) `shouldBe` 5
+
+    it "矩阵乘向量：恒等阵不动向量" $
+      let eye = Seq.fromList [Seq.fromList [1, 0], Seq.fromList [0, 1]]
+      in N13.matVec eye (Seq.fromList [3, 4]) `shouldBe` Seq.fromList [3, 4]
+
+    it "矩阵乘：单位阵乘单位阵" $
+      let eye = Seq.fromList [Seq.fromList [1, 0], Seq.fromList [0, 1]]
+      in N13.matMul eye eye `shouldBe` eye
+
+    it "中心差分近似导数：sin 在 1 处 ≈ cos 1" $
+      N13.centralDiff sin 1 1e-6 `shouldSatisfy` \d -> abs (d - cos 1) < 1e-5
+
+  describe "Ch13.Symbolic" $ do
+    it "求值：x² + 3x + 2 在 x = 2 处等于 12" $
+      S13.eval [("x", 2)] S13.exprDemo `shouldBe` 12
+
+    it "符号求导：在 1、2、3 处与 2x + 3 一致" $
+      map (\x -> S13.eval [("x", x)] S13.derivDemo) [1, 2, 3]
+        `shouldBe` [5, 7, 9]
+
+    it "化简：0 * x = 0，1 * x = x，x + 0 = x" $
+      [ S13.simplify (S13.Mul (S13.Lit 0) (S13.Var "x"))
+      , S13.simplify (S13.Mul (S13.Lit 1) (S13.Var "x"))
+      , S13.simplify (S13.Add (S13.Var "x") (S13.Lit 0))
+      ] `shouldBe` [S13.Lit 0, S13.Var "x", S13.Var "x"]
+
+  describe "Ch13.Regression" $ do
+    it "最小二乘：y = 1 + 2x 上取点，闭式解即 (1, 2)" $
+      R13.ols R13.lrDemo `shouldBe` (1.0, 2.0)
+
+    it "均方误差在真参数处为零" $
+      R13.mse (1, 2) R13.lrDemo `shouldBe` 0.0
+
+    it "梯度下降收敛到闭式解" $
+      let path = take 3000 (R13.descend 0.01 R13.lrDemo (0, 0))
+          (a, b) = last path
+      in (abs (a - 1) < 0.02 && abs (b - 2) < 0.02) `shouldBe` True
+
+  describe "Ch13.Autodiff" $ do
+    it "对偶数求导：x² + 3x + 2 在 1、2、3 处导数为 5、7、9" $
+      map (D13.derivAt D13.polyDemo) [1, 2, 3] `shouldBe` [5, 7, 9]
+
+    it "自动微分与中心差分一致（误差 1e-6 内）" $
+      map (\x -> D13.derivAt D13.polyDemo x - N13.centralDiff
+        (\t -> t * t + 3 * t + 2) x 1e-6) [1, 2, 3]
+        `shouldSatisfy` \ds -> all ((< 1e-5) . abs) ds
+
+    it "自动微分与符号求导逐点一致" $
+      map (\x -> D13.derivAt D13.polyDemo x - S13.eval [("x", x)] S13.derivDemo)
+        [1, 2, 3] `shouldBe` [0, 0, 0]

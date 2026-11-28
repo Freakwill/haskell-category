@@ -149,7 +149,7 @@ Just 3 :: Maybe Int
 Just "Hello" :: Maybe String
 ```
 
-用数学的记法，可以写成$A=A\cup\{*\}$
+用数学的记法，可以写成$\tilde{A}=A\cup\{*\}$
 $$
 \tilde{f}(x)=\begin{cases}
 f(x),x\in A\\

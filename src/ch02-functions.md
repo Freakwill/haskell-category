@@ -1,4 +1,4 @@
-# 第 2 章 函数、递归、高阶函数、Curry 化
+# 第 2 章 函数与Lambda演算
 
 > 状态：试写稿 ｜ 目标 1.3 万字 ｜ 代码：`code/src/Ch02/Functions.hs`
 
@@ -182,7 +182,7 @@ foldr (+) 0 [1,2,3]  →  1 + (2 + (3 + 0))
 
 两者的分工是：`foldr` 用于表达结构，可短路、可处理无限列表；`foldl'` 用于累积数值。对 `(+)`
 这类满足结合律且有单位元的运算，选错不改变结果，只带来意外的耗时与内存占用；对减法这类运算，
-连结果也会变（见 2.6.3）。
+连结果也会变（见 2.7.3）。
 
 ### 2.3.3 管道与 zipWith
 
@@ -256,10 +256,10 @@ $$
 |\mathrm{Hom}(A,\; C^B)| = \big(|C|^{|B|}\big)^{|A|} = |C|^{|A|\,|B|}
 $$
 
-结果相等，因为 $(x^m)^n = x^{mn}$：先打包成一对再取值，与先取值再打包，函数的个数相同。
+结果相等：先打包成一对再取值，与先取值再打包，函数的个数相同。
 
 这个同构界定了"函数空间"的含义：若一个范畴对任意对象 $B, C$ 都存在对象 $C^B$ 使上述双射
-自然成立，该范畴称为**笛卡尔闭范畴**（cartesian closed category）。集合范畴是，Hask 也是
+自然成立，该范畴称为**Cartesian 闭范畴**（Cartesian closed category）。集合范畴是，Hask 也是
 （在忽略 $\bot$ 的意义下）。严格的定义还要求该范畴有终对象与二元积——指数不能单独存在，双射
 的两边都要用到积。第 8 章给出完整定义，并说明应用函子的定义依赖这一结构。
 
@@ -269,7 +269,7 @@ $$
 
 - `add 1 2` 无须写成 `add(1, 2)`：这里不存在二元函数，只有返回函数的函数。
 - `map (2 *) [1,2]` 中的 `(2 *)` 合法：`*` 是二元运算，填入第一个参数后成为一元函数。
-- `(-1)` 不能作为"减一"使用，见 2.6.1。
+- `(-1)` 不能作为"减一"使用，见 2.7.1 节。
 
 ## 2.5 函数复合
 
@@ -304,11 +304,79 @@ sum $ map (^ 2) [1 .. 10]     -- 385
 `f (g (h x))`，可省去两层括号。
 
 它与 `(.)` 的区别是：`$` 作用于值，`(.)` 作用于函数。`(.)` 组合两个函数，结果仍是函数；
-`$` 只是把右边的值传给左边的函数。（两者混用时编译器给出的错误见 2.6.4。）
+`$` 只是把右边的值传给左边的函数。（两者混用时编译器给出的错误见 2.7.4。）
 
-## 2.6 常见错误
+## 2.6 Lambda 演算
 
-### 2.6.1 (-1) 不是"减一"的 section
+前面五节一直在用 λ 演算，只是没正式提出。λ 演算是"函数作为值"的最小语言：表达式只有
+三种——变量、λ-抽象、应用。第 9 章的 $\lambda a.\, f(a)$、第 13 章的
+$\lambda \_.\, y$ 都写在这个语言里，本节把它的规则一次说清。
+
+### 2.6.1 λ-抽象（及其 Haskell 对应表达）
+
+**λ-抽象**（lambda abstraction）$\lambda x.\, e$ 表示以 $x$ 为参数、以 $e$ 为体的
+函数；Haskell 写作 `\x -> e`（`\` 是 λ 的 ASCII 替身）。**应用**（application）
+$f\,x$ 把函数 $f$ 用于参数 $x$，Haskell 写作 `f x`。2.1 节的递归、2.3 节的高阶
+函数、2.4 节的 Curry 化，其数学形式都写在这套语言里。
+
+Haskell 的多元函数定义是**语法糖**（syntactic sugar）：`f x y = x + y` 只是写起来省事，编译器会把它展开（**解糖**，desugar）成嵌套的一元 λ，即
+$f := \lambda x.\, \lambda y.\, x + y$。这正是 Curry 化的来源（2.4 节）——
+`f 1 2` 先代 $x$ 得 $\lambda y.\, 1 + y$，再代 $y$ 得 $1 + 2$。
+
+**绑定与自由变量**：$\lambda x.\, x + y$ 中 $x$ 是**绑定变量**（bound
+variable），$y$ 是**自由变量**（free variable）。绑定变量可以改名而不改变函数：
+$\lambda x.\, x + 1$ 与 $\lambda z.\, z + 1$ 是同一个函数，这称为 **α-等价**
+（alpha-equivalence）。Haskell 同理：`\x -> x + 1` 与 `\z -> z + 1` 是同一个值。
+
+### 2.6.2 β-归约与 η-归约
+
+**β-归约**（beta-reduction）：函数应用按"代入"求值，即把 $(\lambda x.\, e)\,v$
+替换为 $e[x := v]$（把 $e$ 中所有 $x$ 换成 $v$）。
+
+**例子**
+$$(\lambda x.\, x + 1)\,3 \;\leadsto\; 3 + 1 \;\leadsto\; 4$$
+
+其中$\leadsto$ 读作"归约到"。Haskell 的求值遵循同样的代入规则（2.3.2 节）：
+`(\x -> x + 1) 3` 计算出 `4`。2.5 节 `(g . f) x = g (f x)` 的逐步验证，就是
+β-归约。
+
+**η-归约**（eta-reduction）：$\lambda x.\, f\,x$ 与 $f$ 是同一个函数——参数原样
+传给 $f$，多一层包装没有意义。Haskell 里 `\x -> f x` 与 `f` 行为相同，GHC 的
+优化也会做这一步。η-归约在范畴论里叫**外延性**（extensionality）：函数由它在
+每个输入上的值决定。第 6 章处理 Hask 范畴时还会遇到它：`seq` 与 $\bot$ 会破坏
+η-等价，这也是 Hask 不是严格范畴的原因之一。
+
+### 2.6.3 Church 编码：数据也是函数
+
+$\lambda$ 演算里没有布尔与自然数，它们都用函数编码。**Church 布尔**：
+
+$$\mathrm{true} := \lambda x.\, \lambda y.\, x, \qquad
+\mathrm{false} := \lambda x.\, \lambda y.\, y$$
+
+**Church 自然数** $n$ 是"把 $f$ 作用 $n$ 次的函数"：
+
+$$0 := \lambda f.\, \lambda x.\, x, \qquad 1 := \lambda f.\, \lambda x.\, f\,x,
+\qquad n + 1 := \lambda f.\, \lambda x.\, f\,(n\,f\,x)$$
+
+用 β-归约可以验证 $1\,g\,z \leadsto g\,z$、$2\,g\,z \leadsto g\,(g\,z)$。
+Haskell 里照抄（类型分别是 `a -> a -> a` 与 `(a -> a) -> a -> a`）：
+
+```haskell
+churchTrue, churchFalse :: a -> a -> a
+churchTrue  t _ = t
+churchFalse _ f = f
+
+church2 :: (a -> a) -> a -> a
+church2 f x = f (f x)
+```
+
+这个编码说明两件事：数据与控制是同一个东西（`true` 就是"选第一个"）；后面章节
+"把函数当数据"的写法——第 3 章用类型元素个数做算术、第 5 章用枚举验证公理、第 9
+章把 $a \to T b$ 当态射——都建立在这个"一切皆函数"的世界观上。
+
+## 2.7 常见错误
+
+### 2.7.1 (-1) 不是"减一"的 section
 
 要给每个元素减 1，直观写法是：
 
@@ -340,7 +408,7 @@ map (1 -) [5, 4]          -- [-4, -3]，此处是 1 减 x，方向相反
 
 `subtract` 正是为该情形提供的。
 
-### 2.6.2 缺少参数时，类型错误不直接说明原因
+### 2.7.2 缺少参数时，类型错误不直接说明原因
 
 ```haskell
 badNumber :: Int
@@ -356,7 +424,7 @@ T2.hs:7:13: error: [GHC-83865]
 GHC 在第二行给出了原因。复杂表达式中，第一条信息往往具有误导性，优先阅读
 `Probable cause` 一行可以节省时间。
 
-### 2.6.3 foldr 与 foldl 不等价
+### 2.7.3 foldr 与 foldl 不等价
 
 ```haskell
 foldr (-) 0 [1,2,3]   -- 1 - (2 - (3 - 0)) = 2
@@ -366,7 +434,7 @@ foldl (-) 0 [1,2,3]   -- ((0 - 1) - 2) - 3 = -6
 对加法、乘法这类满足结合律的运算，两者结果相同；对减法、除法与列表拼接，结果不同。即使结果
 相同，代价也不同：`foldl` 在惰性求值下积累 thunk，`foldl'` 则逐步求值。1.6 节的问题在此重现。
 
-### 2.6.4 f . g 3 不是"先算 g 3，再交给 f"
+### 2.7.4 f . g 3 不是"先算 g 3，再交给 f"
 
 ```haskell
 bad = f . g 3
@@ -392,7 +460,7 @@ f (g 3)      -- 用括号
 此错误难以定位，是因为 `a0 -> Int` 看起来像缺少参数，实际是括号位置不当。2.5 节的区分在此
 适用：`.` 要求两侧都是函数，`$` 接受值。
 
-## 2.7 练习
+## 2.8 练习
 
 1. 用 `foldr` 重写 `length'`、`reverse`、`concat`，各不超过两行。
 2. 把 `pairs` 改为以较长的列表为准。`zipWith` 无法做到，需说明缺少什么（提示：第 3 章的代数
@@ -401,6 +469,8 @@ f (g 3)      -- 用括号
 4. 证明 `foldr (:) [] = id`。
 5. 定义 `foldlFromRight :: (b -> a -> b) -> b -> [a] -> b`，仅用 `foldr` 实现。（提示：让累加器
    本身是一个函数。）
+6. 用 β-归约展开 `church2 (+1) 0` 得到 2；在 ghci 里输入同式核对，再验证
+   `churchTrue 1 2` 与 `churchFalse 1 2` 分别选出第一、第二个参数。
 
 ## 参考文献
 
@@ -410,5 +480,16 @@ f (g 3)      -- 用括号
 - **Awodey, Steve.** *Category Theory*, 2nd ed. Oxford University Press, 2006.
   §6.1（Exponential in a category）、§6.2（Cartesian closed categories）、§6.4（不依赖
   集合元素的等式定义）。2.4 节所述双射的范畴论版本见这几节，第 8 章将正式使用。
+- **Barendregt, Henk.** *The Lambda Calculus: Its Syntax and Semantics*, 2nd ed.
+  North-Holland, 1984. 无类型 λ 演算的标准参考：语法、α/β/η-归约与 Church–Rosser
+  定理。2.6 节的归约规则依据此书。
+- **Church, Alonzo.** *The Calculi of Lambda-Conversion*. Princeton University Press,
+  1941. λ 演算的原典；Church 布尔与 Church 自然数在此首次提出（2.6.3 节）。
+- **Pierce, Benjamin C.** *Types and Programming Languages*. MIT Press, 2002. 第 5 章
+  以约三十页讲完无类型 λ 演算（语法、归约、Church 编码），是面向工程读者的最简入门；
+  2.6 节按此书的顺序组织。
+- **Selinger, Peter.** *Lecture Notes on the Lambda Calculus*. 2013.
+  https://arxiv.org/abs/0804.3434。在线讲义，§1–2 覆盖 2.6 节的内容，含
+  Church–Rosser 定理的证明与不动点组合子。
 - **`Data.List`**（`base` 包）中 `foldr` 与 `foldl'` 的文档：2.3 节关于求值代价的讨论依据
   于此。

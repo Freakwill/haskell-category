@@ -20,10 +20,19 @@ library
                       Ch06.Hask
                       Ch07.Functor
                       Ch08.Applicative
+                      Ch09.Motivation
+                      Ch09.Core
+                      Ch09.Instances
+                      Ch09.STArrays
+                      Ch13.Numeric
+                      Ch13.Symbolic
+                      Ch13.Regression
+                      Ch13.Autodiff
     build-depends:    base        >=4.16 && <5
                     , containers  >=0.6
                     , text        >=2.0
                     , mtl         >=2.2
+                    , array       >=0.5
     default-language: GHC2021
     ghc-options:      -Wall
 

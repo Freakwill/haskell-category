@@ -158,19 +158,36 @@ TIKZ_CHAIN = """```{=latex}
 
 
 def replace_ascii_diagrams(md_text: str) -> str:
-    """Replace ASCII commutative diagrams (plain fences with arrows) by TikZ."""
+    """Replace ASCII commutative diagrams (plain untagged fences with arrows)
+    by TikZ.  Fences are paired line by line, so an untagged code block before
+    the diagram cannot swallow the diagram's opening fence."""
 
-    def repl(m):
-        body = m.group(1)
-        if "------>" not in body:
-            return m.group(0)
-        if "1_A" in body:
-            return TIKZ_CAT
-        if "+---" in body:
-            return TIKZ_CHAIN
-        return m.group(0)
-
-    return re.sub(r"```\n(.*?)```\n", repl, md_text, flags=re.S)
+    out = []
+    lines = md_text.split("\n")
+    i, n = 0, len(lines)
+    while i < n:
+        ln = lines[i]
+        if ln.startswith("```"):
+            tag = ln[3:].strip()
+            j = i + 1
+            while j < n and not lines[j].startswith("```"):
+                j += 1
+            body = "\n".join(lines[i + 1 : j])
+            block = "\n".join(lines[i : j + 1]) + "\n"
+            if j < n and tag == "" and "------>" in body:
+                if "1_A" in body:
+                    out.append(TIKZ_CAT)
+                elif "+---" in body:
+                    out.append(TIKZ_CHAIN)
+                else:
+                    out.append(block)
+            else:
+                out.append(block)
+            i = j + 1
+        else:
+            out.append(ln)
+            i += 1
+    return "\n".join(out)
 
 
 def unnumbered_references(tex: str) -> str:
@@ -218,6 +235,13 @@ TABLE_CAPTIONS = {
     ],
     "ch05": [
         ("tab:5-1", "五个例子的对照", "small"),
+    ],
+    "ch09": [
+        ("tab:9-1", "三种手写管道的对照", "small"),
+        ("tab:9-2", "三种视角的对照", "small"),
+    ],
+    "ch13": [
+        ("tab:13-1", "五个主题的对照", "small"),
     ],
 }
 

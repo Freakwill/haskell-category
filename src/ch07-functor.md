@@ -5,7 +5,7 @@
 > 写作提示：样章之一；自然性方块在线版用 ASCII，排 PDF 时手画 TikZ
 
 第 5 章定义函子：把对象映射到对象、态射映射到态射，并保持恒等与复合。Haskell 的 `Functor` 类是
-这个定义在 Hask 上的实现：类型构造子给对象映射，`fmap` 给态射映射。本章先用一棵树说明
+这个定义在 **Hask** 上的实现：类型构造子给对象映射，`fmap` 给态射映射。本章先用一棵树说明
 `fmap` 到底做什么，再补上两条定律；随后引入自然变换，说明某些多态函数"不看元素值"这一限制
 的精确含义。
 
@@ -56,7 +56,7 @@ class Functor f where
 `f` 的 kind 是 `* -> *`：接受一个类型，返回一个类型。`Maybe`、`[]`、`Tree` 都有这个 kind；
 `Maybe Int`、`[Int]`、`Tree Int` 是 kind 为 `*` 的类型。
 
-🦂 `Maybe` 不是 Hask 的对象，`Maybe Int` 才是。`Functor Maybe` 的含义不是一次具体的搬运，
+🦂 `Maybe` 不是 **Hask** 的对象，`Maybe Int` 才是。`Functor Maybe` 的含义不是一次具体的搬运，
 而是一套规则：给每个对象 `a` 指定对象 `Maybe a`，给每个函数 `a -> b` 指定函数
 `Maybe a -> Maybe b`。这正是 6.1.1 节区分对象与类型构造子的原因。
 
@@ -76,12 +76,12 @@ badfunctor.hs:3:18: error: [GHC-83865]
 
 ### 7.2.2 对象映射与态射映射
 
-**定义 7.1（函子）** 对范畴 $\mathcal{C},\mathcal{D}$，函子 $F\colon\mathcal{C}\to\mathcal{D}$
-由两部分组成：给每个对象 $A$ 指定对象 $FA$；给每个态射 $f\colon A\to B$ 指定态射
-$Ff\colon FA\to FB$。并要求
+**定义 7.1（函子）** 对范畴 $\mathcal{C},\mathcal{D}$，函子 $T\colon\mathcal{C}\to\mathcal{D}$
+由两部分组成：给每个对象 $a$ 指定对象 $Ta$；给每个态射 $f\colon a\to b$ 指定态射
+$Tf\colon Ta\to Tb$。并要求
 
 $$
-F(1_A)=1_{FA},\qquad F(g\circ f)=Fg\circ Ff.
+T(1_a)=1_{Ta},\qquad T(g\circ f)=Tg\circ Tf.
 $$
 
 对 `Maybe`：对象映射是类型构造子本身，态射映射是 `fmap`。标准库的实现要点是
@@ -128,25 +128,25 @@ $$
 这个函数不知道 `a` 是什么，因此不能检查、排序或构造元素，只能处置 `Nothing` 与 `Just x`
 的外层结构。**自然变换（natural transformation）**把"不看元素值"变成精确的等式条件。
 
-**定义 7.3（自然变换）** 设 $F,G\colon\mathcal{C}\to\mathcal{D}$ 是函子。自然变换
-$\alpha\colon F\Rightarrow G$ 给每个对象 $A$ 指定态射 $\alpha_A\colon FA\to GA$，并要求对
-每个 $f\colon A\to B$ 下图交换：
+**定义 7.3（自然变换）** 设 $T,S\colon\mathcal{C}\to\mathcal{D}$ 是函子。自然变换
+$\alpha\colon T\Rightarrow S$ 给每个对象 $a$ 指定态射 $\alpha_a\colon Ta\to Sa$，并要求对
+每个 $f\colon a\to b$ 下图交换：
 
 ```
-        Ff
-   FA -------> FB
+        Tf
+   Ta -------> Tb
    |           |
-   | α_A       | α_B
+   | α_a       | α_b
    v           v
-   GA -------> GB
-        Gf
+   Sa -------> Sb
+        Sf
 
-   α_B . Ff = Gf . α_A
+   α_b . Tf = Sf . α_a
 ```
 
 （排 PDF 样章时，此图用 TikZ 手画。）
 
-对 `maybeToList`，$F=\mathsf{Maybe}$，$G=\mathsf{List}$，自然性写成
+对 `maybeToList`，$T=\mathsf{Maybe}$，$S=\mathsf{List}$，自然性写成
 
 $$
 \mathsf{maybeToList}\,(\mathsf{fmap}\;f\;x)
@@ -179,36 +179,36 @@ $$
 问题在它观察了 `Int` 的具体值，转换不再只由 `Maybe` 的结构决定。
 
 🦂 "多态就自然"在这个例子里对，但不是可以随意推广的口号。条件是真正的参数多态类型
-$\forall a.\,Fa\to Ga$，并且函数不借 `seq`、`Typeable`、`unsafeCoerce` 等手段窥探或制造元素。
+$\forall a.\,Ta\to Sa$，并且函数不借 `seq`、`Typeable`、`unsafeCoerce` 等手段窥探或制造元素。
 Haskell 有 $\bot$ 和 `seq`，所以参数多态的自由定理（free theorem）要加限定后才能用于全函数，
 这正是 6.3 节的结论。把 $\bot$ 一并纳入语义、让等式严格成立的通行做法是**域论**（domain
 theory）：类型解释为 CPO，函数解释为连续函数，见章末 Abramsky 与 Jung 的综述。
 
 ## 7.4 函子范畴
 
-6.1.1 节说过：函子相对范畴而言。在 Cat 中函子是态射；换个范畴看，函子又成为对象。现在把
+6.1.1 节说过：函子相对范畴而言。在 **Cat** 中函子是态射；换个范畴看，函子又成为对象。现在把
 后一半说清楚。
 
 **定义 7.4（函子范畴）** 给定范畴 $\mathcal{C},\mathcal{D}$，函子范畴
 $[\mathcal{C},\mathcal{D}]$ 的对象是从 $\mathcal{C}$ 到 $\mathcal{D}$ 的函子，态射是自然变换。
-恒等态射的分量是 $1_{FA}$；两个自然变换按分量复合。
+恒等态射的分量是 $1_{Ta}$；两个自然变换按分量复合。
 
 三个层次并排看：
 
 | 范畴 | 对象 | 态射 |
 |---|---|---|
-| Hask | 类型 | Haskell 函数 |
-| Cat | 小范畴 | 函子 |
+| **Hask** | 类型 | Haskell 函数 |
+| **Cat** | 小范畴 | 函子 |
 | $[\mathcal{C},\mathcal{D}]$ | 函子 $\mathcal{C}\to\mathcal{D}$ | 自然变换 |
 
 "函子是对象"与"函子是态射"不矛盾，指的不是同一个范畴。自然变换的每个分量都是普通态射，
-但自然性方块把这些分量绑成一个整体；任意一组 $FA\to GA$ 的函数不自动构成自然变换。
+但自然性方块把这些分量绑成一个整体；任意一组 $Ta\to Sa$ 的函数不自动构成自然变换。
 
 ### 7.4.1 `fmap` 与自然性
 
-`fmap` 本身不是 $F\Rightarrow G$ 这种自然变换：它是函子 $F$ 的态射映射，不是两个函子之间
+`fmap` 本身不是 $T\Rightarrow S$ 这种自然变换：它是函子 $T$ 的态射映射，不是两个函子之间
 的转换。但 `fmap` 的类型 $(a\to b)\to fa\to fb$ 在 $a$、$b$ 上都是参数多态的；固定 $a$，令
-$b$ 变动，`fmap` 给出从 $\mathrm{Hom}(a,-)$ 到 $\mathrm{Hom}(Fa,F-)$ 的自然变换。Wadler 的
+$b$ 变动，`fmap` 给出从 $\mathrm{Hom}(a,-)$ 到 $\mathrm{Hom}(Ta,T-)$ 的自然变换。Wadler 的
 自由定理正是从这里得出：多态类型的实现被迫对每个类型"做同样的事"。
 
 这一观察给出检查 API 的办法。若一个库声称某函数是"泛型容器转换"，只给出几个类型上的实现
